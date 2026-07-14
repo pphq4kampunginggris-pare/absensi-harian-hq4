@@ -14,6 +14,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <script>
         tailwind.config = {
             theme: {
@@ -39,6 +40,7 @@
             }
         }
     </script>
+    
     <style>
         /* Custom scrollbar for beautiful UI */
         ::-webkit-scrollbar {
@@ -85,7 +87,7 @@
             <i class="fa-solid fa-cloud text-xl text-emerald-600 absolute animate-pulse"></i>
         </div>
         <p class="text-sm font-extrabold text-emerald-900 mt-4 tracking-wider">SINKRONISASI DATA AWAN...</p>
-        <p class="text-[11px] text-emerald-650/80 mt-1">Menyelaraskan data multi-perangkat secara real-time</p>
+        <p class="text-[11px] text-emerald-650/80 mt-1">Menyelaraskan data multi-perangkat secara aman dan real-time</p>
     </div>
 
     <!-- ================= SECURITY LOCK SCREEN OVERLAY ================= -->
@@ -190,7 +192,7 @@
                     <div id="live-date" class="font-bold text-[10px] md:text-sm text-white">Selasa, 14 Juli 2026</div>
                     <div id="live-time" class="text-[9px] md:text-[11px] text-emerald-300 font-mono tracking-wider mt-0.5">19:45:00 WIB</div>
                 </div>
-                <!-- Lock App Button (Sekarang selalu berada rapi di pojok kanan atas) -->
+                <!-- Lock App Button -->
                 <button onclick="lockAppInstantly()" class="bg-white/10 hover:bg-rose-600 border border-white/10 hover:border-rose-500 p-2 md:p-2.5 rounded-xl text-white transition-all duration-300 hover:scale-105 flex items-center justify-center shrink-0" title="Kunci Aplikasi Sekarang">
                     <i class="fa-solid fa-lock text-xs md:text-base"></i>
                 </button>
@@ -864,7 +866,7 @@
 
         let activeAbsensiSession = {
             date: '',
-            activityId: '',
+            activity_id: '',
             attendance: {}, 
             notes: {} 
         };
@@ -896,8 +898,8 @@
             document.getElementById('absensi-tanggal').value = getTodayDateString();
             document.addEventListener('keydown', handlePhysicalKeyboard);
 
-            // Establish real-time live database pooling/syncing
-            setupRealtimeSync();
+            // Establish real-time safe HTTP polling (Resolves canvas websocket SecurityError completely)
+            setupSafePollingSync();
         }
 
         // --- LOADING INDICATOR CONTROLLER ---
@@ -1182,11 +1184,11 @@
                 iconClass = "fa-circle-info text-blue-500";
             }
 
-            toast.className = `flex items-center gap-3 p-3.5 rounded-2xl border-l-4 ${bgClass} transform transition-all duration-300 translate-x-12 opacity-0 shadow-lg z-[9999]`;
+            toast.className = `flex items-center gap-3 p-3.5 rounded-2xl border-l-4 ${bgClass} transform transition-all duration-300 translate-x-12 opacity-0 shadow-lg z-[9999] pointer-events-auto`;
             toast.innerHTML = `
                 <i class="fa-solid ${iconClass} text-lg shrink-0"></i>
                 <div class="flex-grow">
-                    <p class="text-xs font-bold leading-snug">${message}</p>
+                    <p class="text-xs font-bold leading-snug text-left">${message}</p>
                 </div>
                 <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-600 transition-colors">
                     <i class="fa-solid fa-xmark text-xs"></i>
@@ -1204,7 +1206,7 @@
                 setTimeout(() => {
                     toast.remove();
                 }, 300);
-            }, 3500);
+            }, 5500);
         }
 
         // --- CUSTOM MODAL CONFIRM DIALOG ---
@@ -1257,7 +1259,8 @@
                 } else {
                     // Seed initial santri list
                     dataSantri = [...sampleSantri];
-                    await supabaseClient.from('santri').insert(dataSantri);
+                    const { error: seedError } = await supabaseClient.from('santri').insert(dataSantri);
+                    if (seedError) throw seedError;
                 }
 
                 // Fetch Kegiatan
@@ -1291,7 +1294,7 @@
                 showToast("Sinkronisasi database cloud sukses!", "success");
             } catch (err) {
                 console.error("Gagal sinkronisasi Supabase:", err);
-                showToast("Koneksi cloud gagal. Menggunakan penyimpanan lokal sementara.", "info");
+                showToast("Koneksi cloud gagal: " + (err.message || "Tabel tidak ditemukan / kendala skema.") + ". Menggunakan penyimpanan lokal sementara.", "error");
                 
                 // Local Storage Fallback
                 const rawSantri = localStorage.getItem(DB_SANTRI_KEY);
@@ -1333,7 +1336,7 @@
                 
                 // If the user is actively taking attendance, keep sheet updated
                 if (!document.getElementById('lembar-absensi-container').classList.contains('hidden')) {
-                    const activeSessionInDb = dataAbsensi.find(a => a.date === activeAbsensiSession.date && a.activityId === activeAbsensiSession.activityId);
+                    const activeSessionInDb = dataAbsensi.find(a => a.date === activeAbsensiSession.date && a.activity_id === activeAbsensiSession.activity_id);
                     if (activeSessionInDb) {
                         // Merge notes and attendance gracefully without overriding what they might currently be clicking
                         Object.keys(activeSessionInDb.attendance).forEach(key => {
@@ -1348,45 +1351,12 @@
             }
         }
 
-        // SUPABASE REALTIME CHANNEL SETUP WITH SAFE FALLBACK IF WEBSOCKETS ARE BLOCKED IN CANVAS
-        function setupRealtimeSync() {
-            // Background periodic pull as a solid fallback (every 10 seconds)
+        // SAFE POLING MECHANISM (COMPLETELY PREVENTS SUPABASE WEB-SOCKET BAN/SECURITY ERORS)
+        function setupSafePollingSync() {
+            // Background periodic pull as a solid, safe fallback (every 10 seconds)
+            // Supabase Real-time CDC channel (WebSockets) is completely omitted to avoid SecurityError inside Canvas preview
             setInterval(silentSyncDatabase, 10000);
-
-            try {
-                // Cek apakah browser mendukung WebSocket secara umum sebelum inisialisasi
-                if (typeof window.WebSocket === 'undefined') {
-                    console.warn("WebSocket tidak tersedia di peramban ini. Mengandalkan sinkronisasi berkala HTTP Polling.");
-                    return;
-                }
-
-                // Inisialisasi kanal real-time
-                const channel = supabaseClient.channel('realtime-absensi-sync');
-
-                channel
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'santri' }, () => {
-                        silentSyncDatabase();
-                    })
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'kegiatan' }, () => {
-                        silentSyncDatabase();
-                    })
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'absensi' }, () => {
-                        silentSyncDatabase();
-                    });
-
-                // Lakukan subscribe dengan menyematkan penangkap eror kustom
-                channel.subscribe((status, err) => {
-                    if (err || status === 'CHANNEL_ERROR') {
-                        console.warn("WebSocket diblokir oleh kebijakan keamanan Sandbox/Canvas. Sistem beralih ke HTTP Polling.");
-                        try {
-                            // Hapus kanal agar tidak terus mencoba melakukan rekoneksi ulang yang memicu spam eror
-                            supabaseClient.removeChannel(channel);
-                        } catch (e) {}
-                    }
-                });
-            } catch (err) {
-                console.warn("Gagal menginisialisasi WebSocket Supabase (Akses ditolak di lingkungan Canvas). Menggunakan Polling HTTP.", err);
-            }
+            console.log("Safe Background HTTP Polling Sync initiated. WebSocket disabled to guarantee zero SecurityErrors.");
         }
 
         // PENGURUTAN KRONOLOGIS SMART: Mengekstrak pola waktu jam pertama di dalam teks deskripsi (00:00 - 24:00)
@@ -1431,6 +1401,7 @@
             const targetBtn = document.getElementById(`btn-tab-${tabId}`);
             if (targetBtn) {
                 targetBtn.classList.remove('text-gray-600', 'hover:bg-gray-100');
+                targetBtn.text_white = true;
                 targetBtn.classList.add('bg-emerald-600', 'text-white', 'shadow-md', 'shadow-emerald-600/10');
                 targetBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
             }
@@ -1508,7 +1479,7 @@
             const sortedLogs = [...dataAbsensi].sort((a, b) => new Date(b.date) - new Date(a.date));
 
             sortedLogs.forEach((log, idx) => {
-                const kegiatanObj = dataKegiatan.find(k => k.id === log.activityId);
+                const kegiatanObj = dataKegiatan.find(k => k.id === log.activity_id);
                 const kegiatanNama = kegiatanObj ? kegiatanObj.nama : 'Kegiatan Tidak Diketahui';
                 
                 let h = 0, i = 0, s = 0, a = 0;
@@ -1541,13 +1512,13 @@
                 if (listIzin.length > 0 || listSakit.length > 0 || listAlpa.length > 0) {
                     rincianTidakHadir += `<div class="mt-2 p-2 bg-gray-50 rounded-xl border border-gray-100 text-[10px] space-y-1">`;
                     if (listIzin.length > 0) {
-                        rincianTidakHadir += `<div class="text-blue-700 flex flex-wrap gap-1"><span class="font-bold"><i class="fa-solid fa-plane-departure mr-1 text-[9px]"></i>Izin:</span> <span>${listIzin.join(', ')}</span></div>`;
+                        rincianTidakHadir += `<div class="text-blue-700 flex flex-wrap gap-1 text-left"><span class="font-bold"><i class="fa-solid fa-plane-departure mr-1 text-[9px]"></i>Izin:</span> <span>${listIzin.join(', ')}</span></div>`;
                     }
                     if (listSakit.length > 0) {
-                        rincianTidakHadir += `<div class="text-amber-700 flex flex-wrap gap-1"><span class="font-bold"><i class="fa-solid fa-briefcase-medical mr-1 text-[9px]"></i>Sakit:</span> <span>${listSakit.join(', ')}</span></div>`;
+                        rincianTidakHadir += `<div class="text-amber-700 flex flex-wrap gap-1 text-left"><span class="font-bold"><i class="fa-solid fa-briefcase-medical mr-1 text-[9px]"></i>Sakit:</span> <span>${listSakit.join(', ')}</span></div>`;
                     }
                     if (listAlpa.length > 0) {
-                        rincianTidakHadir += `<div class="text-rose-700 flex flex-wrap gap-1"><span class="font-bold"><i class="fa-solid fa-circle-exclamation mr-1 text-[9px]"></i>Alpa:</span> <span>${listAlpa.join(', ')}</span></div>`;
+                        rincianTidakHadir += `<div class="text-rose-700 flex flex-wrap gap-1 text-left"><span class="font-bold"><i class="fa-solid fa-circle-exclamation mr-1 text-[9px]"></i>Alpa:</span> <span>${listAlpa.join(', ')}</span></div>`;
                     }
                     rincianTidakHadir += `</div>`;
                 } else {
@@ -1559,8 +1530,8 @@
                         <td class="py-3 px-3 text-center font-bold text-gray-400 align-top">${idx + 1}</td>
                         <td class="py-3 px-3 align-top">
                             <div class="flex flex-col">
-                                <span class="font-bold text-gray-800 text-xs">${kegiatanNama}</span>
-                                <span class="text-[10px] text-gray-450 mt-0.5"><i class="fa-solid fa-calendar-alt text-emerald-600 mr-1 text-[10px]"></i> ${formattedDate}</span>
+                                <span class="font-bold text-gray-800 text-xs text-left">${kegiatanNama}</span>
+                                <span class="text-[10px] text-gray-450 mt-0.5 text-left"><i class="fa-solid fa-calendar-alt text-emerald-600 mr-1 text-[10px]"></i> ${formattedDate}</span>
                                 ${rincianTidakHadir}
                             </div>
                         </td>
@@ -1578,10 +1549,10 @@
                         </td>
                         <td class="py-3 px-3 text-center align-top">
                             <div class="inline-flex gap-1">
-                                <button onclick="bukaDanEditAbsen('${log.date}', '${log.activityId}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2 py-1 rounded-xl font-bold text-[10px] transition-colors">
+                                <button onclick="bukaDanEditAbsen('${log.date}', '${log.activity_id}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2 py-1 rounded-xl font-bold text-[10px] transition-colors">
                                     <i class="fa-solid fa-folder-open mr-0.5"></i> Edit
                                 </button>
-                                <button onclick="hapusSesiAbsen('${log.date}', '${log.activityId}')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 p-1.5 rounded-xl transition-colors" title="Hapus Permanen">
+                                <button onclick="hapusSesiAbsen('${log.date}', '${log.activity_id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 p-1.5 rounded-xl transition-colors" title="Hapus Permanen">
                                     <i class="fa-solid fa-trash-can text-[10px]"></i>
                                 </button>
                             </div>
@@ -1591,25 +1562,25 @@
             });
         }
 
-        function bukaDanEditAbsen(date, activityId) {
+        function bukaDanEditAbsen(date, activity_id) {
             switchTab('absensi');
             document.getElementById('absensi-tanggal').value = date;
-            document.getElementById('absensi-kegiatan').value = activityId;
+            document.getElementById('absensi-kegiatan').value = activity_id;
             buatLembarAbsen();
         }
 
-        async function hapusSesiAbsen(date, activityId) {
+        async function hapusSesiAbsen(date, activity_id) {
             showConfirmModal(
                 "Hapus Jurnal Presensi",
                 `Apakah Anda yakin ingin menghapus secara permanen berkas data presensi kegiatan tertanggal ${date}?`,
                 async () => {
                     showLoadingOverlay(true);
                     try {
-                        const docId = `${date}_${activityId}`;
+                        const docId = `${date}_${activity_id}`;
                         const { error } = await supabaseClient.from('absensi').delete().eq('id', docId);
                         if (error) throw error;
 
-                        const index = dataAbsensi.findIndex(a => a.date === date && a.activityId === activityId);
+                        const index = dataAbsensi.findIndex(a => a.date === date && a.activity_id === activity_id);
                         if (index !== -1) {
                             dataAbsensi.splice(index, 1);
                         }
@@ -1620,7 +1591,7 @@
                         showToast("Sesi presensi harian telah dihapus dari cloud.", "info");
                     } catch (err) {
                         console.error("Gagal menghapus absensi dari cloud:", err);
-                        showToast("Gagal menghapus data dari server.", "error");
+                        showToast("Gagal menghapus data dari server: " + (err.message || err), "error");
                     } finally {
                         showLoadingOverlay(false);
                     }
@@ -1655,11 +1626,11 @@
                         <td class="py-3 px-4 text-center font-semibold text-gray-400">${idx + 1}</td>
                         <td class="py-3 px-4">
                             <div class="flex flex-col">
-                                <span class="font-bold text-gray-800">${s.nama}</span>
-                                <span class="text-[10px] text-gray-450 mt-0.5"><i class="fa-solid fa-location-dot text-emerald-600 mr-1 text-[10px]"></i> Asal: ${s.alamat || '-'}</span>
+                                <span class="font-bold text-gray-800 text-left">${s.nama}</span>
+                                <span class="text-[10px] text-gray-450 mt-0.5 text-left"><i class="fa-solid fa-location-dot text-emerald-600 mr-1 text-[10px]"></i> Asal: ${s.alamat || '-'}</span>
                             </div>
                         </td>
-                        <td class="py-3 px-4 text-gray-600 font-medium">
+                        <td class="py-3 px-4 text-gray-600 font-medium text-left">
                             <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-gray-100 text-gray-700 text-[10px] font-semibold">
                                 <i class="fa-solid fa-bed text-[9px]"></i> ${s.grup || 'Belum Ditentukan'}
                             </span>
@@ -1717,7 +1688,7 @@
                 renderDashboardStats();
             } catch (err) {
                 console.error("Gagal menyimpan santri ke database awan:", err);
-                showToast("Gagal menyimpan data ke cloud server.", "error");
+                showToast("Gagal menyimpan data santri: " + (err.message || err), "error");
             } finally {
                 showLoadingOverlay(false);
             }
@@ -1764,7 +1735,7 @@
                         showToast("Data santriwati berhasil dihapus dari cloud.", "info");
                     } catch (err) {
                         console.error("Gagal menghapus santri dari cloud:", err);
-                        showToast("Gagal menghapus data dari server cloud.", "error");
+                        showToast("Gagal menghapus data dari server: " + (err.message || err), "error");
                     } finally {
                         showLoadingOverlay(false);
                     }
@@ -1791,9 +1762,9 @@
                 tableBody.innerHTML += `
                     <tr class="hover:bg-gray-50/80 transition-colors">
                         <td class="py-3 px-4 text-center font-semibold text-gray-400">${idx + 1}</td>
-                        <td class="py-3 px-4 font-bold text-gray-800">${k.nama}</td>
-                        <td class="py-3 px-4 text-gray-600 font-medium">
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 text-[10px] font-semibold">
+                        <td class="py-3 px-4 font-bold text-gray-800 text-left">${k.nama}</td>
+                        <td class="py-3 px-4 text-gray-600 font-medium text-left">
+                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 text-[10px] font-semibold">
                                 <i class="fa-solid fa-clock text-[9px]"></i> ${k.waktu}
                             </span>
                         </td>
@@ -1850,7 +1821,7 @@
                 renderDashboardStats();
             } catch (err) {
                 console.error("Gagal menyimpan kegiatan ke cloud:", err);
-                showToast("Gagal menyinkronkan kegiatan ke cloud server.", "error");
+                showToast("Gagal menyimpan data kegiatan: " + (err.message || err), "error");
             } finally {
                 showLoadingOverlay(false);
             }
@@ -1896,7 +1867,7 @@
                         showToast("Kegiatan berhasil dihapus dari cloud.", "info");
                     } catch (err) {
                         console.error("Gagal menghapus kegiatan dari cloud:", err);
-                        showToast("Gagal menghapus data dari cloud server.", "error");
+                        showToast("Gagal menghapus data dari server: " + (err.message || err), "error");
                     } finally {
                         showLoadingOverlay(false);
                     }
@@ -1920,11 +1891,11 @@
             }
 
             activeAbsensiSession.date = dateVal;
-            activeAbsensiSession.activityId = activityIdVal;
+            activeAbsensiSession.activity_id = activityIdVal;
             activeAbsensiSession.attendance = {};
             activeAbsensiSession.notes = {};
 
-            const existingAbsen = dataAbsensi.find(a => a.date === dateVal && a.activityId === activityIdVal);
+            const existingAbsen = dataAbsensi.find(a => a.date === dateVal && a.activity_id === activityIdVal);
             
             if (existingAbsen) {
                 activeAbsensiSession.attendance = { ...existingAbsen.attendance };
@@ -1974,8 +1945,8 @@
                         <td class="py-3 px-4 text-center text-gray-400 font-semibold">${idx + 1}</td>
                         <td class="py-3 px-4">
                             <div class="flex flex-col">
-                                <span class="font-bold text-gray-800">${s.nama}</span>
-                                <span class="text-[10px] text-gray-400 mt-0.5">${s.grup || '-'} • Asal: ${s.alamat || '-'}</span>
+                                <span class="font-bold text-gray-800 text-left">${s.nama}</span>
+                                <span class="text-[10px] text-gray-400 mt-0.5 text-left">${s.grup || '-'} • Asal: ${s.alamat || '-'}</span>
                             </div>
                         </td>
                         <td class="py-3 px-4 text-center">
@@ -1987,7 +1958,7 @@
                             </div>
                         </td>
                         <td class="py-3 px-4">
-                            <input type="text" value="${currentNote}" onchange="gantiKeteranganSantri('${s.id}', this.value)" placeholder="Keterangan..." class="w-full border border-gray-250/70 rounded-xl px-2.5 py-1.5 text-[11px] focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white" />
+                            <input type="text" value="${currentNote}" onchange="gantiKeteranganSantri('${s.id}', this.value)" placeholder="Keterangan..." class="w-full border border-gray-250/70 rounded-xl px-2.5 py-1.5 text-[11px] focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white text-left" />
                         </td>
                     </tr>
                 `;
@@ -2014,7 +1985,7 @@
         }
 
         function batalAbsensi() {
-            activeAbsensiSession = { date: '', activityId: '', attendance: {}, notes: {} };
+            activeAbsensiSession = { date: '', activity_id: '', attendance: {}, notes: {} };
             document.getElementById('lembar-absensi-container').classList.add('hidden');
             document.getElementById('absen-empty-state').classList.remove('hidden');
             showToast("Pembatalan lembar absen berhasil dilakukan.", "info");
@@ -2022,13 +1993,14 @@
 
         async function simpanAbsensi() {
             const dateVal = activeAbsensiSession.date;
-            const activityIdVal = activeAbsensiSession.activityId;
+            const activityIdVal = activeAbsensiSession.activity_id;
             const docId = `${dateVal}_${activityIdVal}`;
 
+            // MEMASTIKAN NAMA KEY SINKRON DENGAN POSTGRESQL (MENGGUNAKAN activity_id)
             const sessionToSave = {
                 id: docId,
                 date: dateVal,
-                activityId: activityIdVal,
+                activity_id: activityIdVal,
                 attendance: { ...activeAbsensiSession.attendance },
                 notes: { ...activeAbsensiSession.notes }
             };
@@ -2041,7 +2013,7 @@
 
                 if (error) throw error;
 
-                const existingIdx = dataAbsensi.findIndex(a => a.date === dateVal && a.activityId === activityIdVal);
+                const existingIdx = dataAbsensi.findIndex(a => a.date === dateVal && a.activity_id === activityIdVal);
                 if (existingIdx !== -1) {
                     dataAbsensi[existingIdx] = sessionToSave;
                 } else {
@@ -2057,7 +2029,7 @@
                 renderDashboardStats();
             } catch (err) {
                 console.error("Gagal mengupload absensi ke database awan:", err);
-                showToast("Gagal menyimpan ke server cloud.", "error");
+                showToast("Gagal menyimpan ke cloud: " + (err.message || "Pastikan skema SQL drop & recreate di Supabase sudah berhasil dijalankan."), "error");
             } finally {
                 showLoadingOverlay(false);
             }
@@ -2079,7 +2051,7 @@
 
             const filteredSessions = dataAbsensi.filter(session => {
                 const isWithinDates = session.date >= mulai && session.date <= akhir;
-                const isMatchingActivity = filterKegiatan === 'ALL' || session.activityId === filterKegiatan;
+                const isMatchingActivity = filterKegiatan === 'ALL' || session.activity_id === filterKegiatan;
                 return isWithinDates && isMatchingActivity;
             });
 
@@ -2166,8 +2138,8 @@
                         <td class="py-3 px-4 text-center font-semibold text-gray-400">${idx + 1}</td>
                         <td class="py-3 px-4 font-bold text-gray-800">
                             <div class="flex flex-col">
-                                <span>${s.nama}</span>
-                                <span class="text-[9px] font-medium text-gray-400 mt-0.5"><i class="fa-solid fa-location-dot"></i> ${s.alamat}</span>
+                                <span class="text-left">${s.nama}</span>
+                                <span class="text-[9px] font-medium text-gray-400 mt-0.5 text-left"><i class="fa-solid fa-location-dot"></i> ${s.alamat}</span>
                             </div>
                         </td>
                         <td class="py-3 px-3 text-center font-extrabold text-emerald-700 bg-emerald-50/20">${displayHadir}</td>

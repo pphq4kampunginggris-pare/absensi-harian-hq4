@@ -173,26 +173,26 @@
 
     <!-- Header / Navbar -->
     <header class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white shadow-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 md:py-4 flex flex-col md:flex-row items-center justify-between gap-3">
-            <div class="flex items-center gap-3 text-center md:text-left">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 md:py-4 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 md:gap-3 text-left">
                 <!-- Fitur Rahasia: Klik logo Masjid ini 5 kali secara cepat untuk mengganti PIN -->
-                <div onclick="triggerSecretPinChange()" class="bg-white/15 p-2 rounded-2xl backdrop-blur-sm border border-white/20 shadow-inner cursor-pointer transition-transform active:scale-95" title="PP. Hamalatul Qur'an">
+                <div onclick="triggerSecretPinChange()" class="bg-white/15 p-2 rounded-2xl backdrop-blur-sm border border-white/20 shadow-inner cursor-pointer transition-transform active:scale-95 shrink-0" title="PP. Hamalatul Qur'an">
                     <i class="fa-solid fa-mosque text-2xl md:text-3xl text-emerald-300"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg md:text-2xl font-extrabold tracking-tight">PP. HAMALATUL QUR'AN PUTRI 4</h1>
-                    <p class="text-[10px] md:text-sm text-emerald-200 font-medium">Sistem Informasi Absensi Kegiatan Santri Digital</p>
+                    <h1 class="text-sm md:text-2xl font-extrabold tracking-tight leading-tight">PP. HAMALATUL QUR'AN PUTRI 4</h1>
+                    <p class="text-[9px] md:text-sm text-emerald-200 font-medium">Sistem Informasi Absensi Kegiatan Santri Digital</p>
                 </div>
             </div>
             <!-- Live Date, Time & Quick Lock -->
-            <div class="flex items-center gap-3">
-                <div class="bg-black/20 px-3 py-1.5 rounded-xl border border-white/10 text-center md:text-right hidden sm:block">
-                    <div id="live-date" class="font-bold text-xs md:text-sm text-white">Selasa, 14 Juli 2026</div>
-                    <div id="live-time" class="text-[10px] text-emerald-300 font-mono tracking-wider mt-0.5">19:45:00 WIB</div>
+            <div class="flex items-center gap-2 md:gap-3 shrink-0">
+                <div class="bg-black/20 px-3 py-1.5 rounded-xl border border-white/10 text-right hidden sm:block">
+                    <div id="live-date" class="font-bold text-[10px] md:text-sm text-white">Selasa, 14 Juli 2026</div>
+                    <div id="live-time" class="text-[9px] md:text-[11px] text-emerald-300 font-mono tracking-wider mt-0.5">19:45:00 WIB</div>
                 </div>
-                <!-- Lock App Button -->
-                <button onclick="lockAppInstantly()" class="bg-white/10 hover:bg-rose-600 border border-white/10 hover:border-rose-500 p-2 md:p-2.5 rounded-xl text-white transition-all duration-300 hover:scale-105" title="Kunci Aplikasi Sekarang">
-                    <i class="fa-solid fa-lock text-sm md:text-base"></i>
+                <!-- Lock App Button (Sekarang selalu berada rapi di pojok kanan atas) -->
+                <button onclick="lockAppInstantly()" class="bg-white/10 hover:bg-rose-600 border border-white/10 hover:border-rose-500 p-2 md:p-2.5 rounded-xl text-white transition-all duration-300 hover:scale-105 flex items-center justify-center shrink-0" title="Kunci Aplikasi Sekarang">
+                    <i class="fa-solid fa-lock text-xs md:text-base"></i>
                 </button>
             </div>
         </div>

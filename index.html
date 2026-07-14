@@ -837,12 +837,8 @@
             { id: "S-24", nama: "Jenyar Silviana Majid", alamat: "Pare, Kediri", grup: "Kamar Aisyah" }
         ];
 
-        const sampleKegiatan = [
-            { id: "K-1", nama: "Tahfidz Ba'da Subuh", waktu: "Pukul 05:00 - 06:30 WIB" },
-            { id: "K-2", nama: "Kajian Kitab Kuning", waktu: "Pukul 08:00 - 10:00 WIB" },
-            { id: "K-3", nama: "Tahfidz Ba'da Ashar", waktu: "Pukul 16:00 - 17:15 WIB" },
-            { id: "K-4", nama: "Setoran Hafalan Al-Qur'an", waktu: "Pukul 18:00 - 19:30 WIB" }
-        ];
+        // STARTING WITH EMPTY ACTIVITIES TO ALLOW CREATING FROM ZERO (HAPUS SEMUA SEPERTI PERMINTAAN USER)
+        const sampleKegiatan = [];
 
         // Global State Variables
         let dataSantri = [];
@@ -880,6 +876,9 @@
 
             document.getElementById('absensi-tanggal').value = getTodayDateString();
             document.addEventListener('keydown', handlePhysicalKeyboard);
+
+            // Establish real-time live database pooling/syncing
+            setupRealtimeSync();
         }
 
         // --- LOADING INDICATOR CONTROLLER ---
@@ -1130,82 +1129,6 @@
             return `${year}-${month}-${day}`;
         }
 
-        // Helper to dynamically seed weekly attendance that matches physical document stats perfectly
-        function generateAutoSeededData() {
-            const dates = [];
-            for (let i = 6; i >= 0; i--) {
-                dates.push(getRelativeDateString(-i));
-            }
-
-            // Target counts of Sakit (S) and Izin / Pulang (I) from May Week 3 sheet
-            const targetStats = {
-                "S-1": { S: 1, I: 2 },  
-                "S-2": { S: 2, I: 0 },  
-                "S-3": { S: 0, I: 0 },  
-                "S-4": { S: 1, I: 0 },  
-                "S-5": { S: 1, I: 0 },  
-                "S-6": { S: 0, I: 0 },  
-                "S-7": { S: 1, I: 0 },  
-                "S-8": { S: 2, I: 0 },  
-                "S-9": { S: 1, I: 0 },  
-                "S-10": { S: 1, I: 0 }, 
-                "S-11": { S: 2, I: 0 }, 
-                "S-12": { S: 2, I: 0 }, 
-                "S-13": { S: 0, I: 0 }, 
-                "S-14": { S: 0, I: 0 }, 
-                "S-15": { S: 0, I: 0 }, 
-                "S-16": { S: 1, I: 0 }, 
-                "S-17": { S: 0, I: 0, skip: true }, 
-                "S-18": { S: 2, I: 0 }, 
-                "S-19": { S: 1, I: 4 }, 
-                "S-20": { S: 0, I: 0, skip: true }, 
-                "S-21": { S: 0, I: 0 }, 
-                "S-22": { S: 0, I: 0 }, 
-                "S-23": { S: 0, I: 0 }, 
-                "S-24": { S: 1, I: 0 }  
-            };
-
-            const simulatedList = [];
-
-            dates.forEach((date, dateIdx) => {
-                const attendance = {};
-                const notes = {};
-
-                sampleSantri.forEach(s => {
-                    const targets = targetStats[s.id];
-                    if (targets && targets.skip) {
-                        attendance[s.id] = '';
-                        notes[s.id] = '';
-                        return;
-                    }
-
-                    let status = 'H'; 
-                    
-                    if (targets) {
-                        if (targets.S > 0 && dateIdx < targets.S) {
-                            status = 'S';
-                        } 
-                        else if (targets.I > 0 && dateIdx >= 3 && dateIdx < 3 + targets.I) {
-                            status = 'I';
-                        }
-                    }
-
-                    attendance[s.id] = status;
-                    notes[s.id] = status === 'S' ? 'Sakit' : status === 'I' ? 'Izin Pulang' : '';
-                });
-
-                simulatedList.push({
-                    id: `${date}_K-1`,
-                    date: date,
-                    activityId: "K-1",
-                    attendance: attendance,
-                    notes: notes
-                });
-            });
-
-            return simulatedList;
-        }
-
         // --- TOAST NOTIFICATIONS ---
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
@@ -1222,7 +1145,7 @@
                 iconClass = "fa-circle-info text-blue-500";
             }
 
-            toast.className = `flex items-center gap-3 p-3.5 rounded-2xl border-l-4 ${bgClass} transform transition-all duration-300 translate-x-12 opacity-0 shadow-lg`;
+            toast.className = `flex items-center gap-3 p-3.5 rounded-2xl border-l-4 ${bgClass} transform transition-all duration-300 translate-x-12 opacity-0 shadow-lg z-[9999]`;
             toast.innerHTML = `
                 <i class="fa-solid ${iconClass} text-lg shrink-0"></i>
                 <div class="flex-grow">
@@ -1310,8 +1233,8 @@
                 if (kegiatanData && kegiatanData.length > 0) {
                     dataKegiatan = kegiatanData;
                 } else {
-                    dataKegiatan = [...sampleKegiatan];
-                    await supabaseClient.from('kegiatan').insert(dataKegiatan);
+                    // We keep it empty as requested by user to start from scratch (nol)
+                    dataKegiatan = [];
                 }
 
                 // Fetch Absensi
@@ -1321,12 +1244,7 @@
                 
                 if (absensiError) throw absensiError;
 
-                if (absensiData && absensiData.length > 0) {
-                    dataAbsensi = absensiData;
-                } else {
-                    dataAbsensi = generateAutoSeededData();
-                    await supabaseClient.from('absensi').insert(dataAbsensi);
-                }
+                dataAbsensi = absensiData || [];
 
                 sortKegiatan();
                 renderSantriList();
@@ -1344,8 +1262,8 @@
                 const rawAbsen = localStorage.getItem(DB_ABSEN_KEY);
 
                 dataSantri = rawSantri ? JSON.parse(rawSantri) : [...sampleSantri];
-                dataKegiatan = rawKegiatan ? JSON.parse(rawKegiatan) : [...sampleKegiatan];
-                dataAbsensi = rawAbsen ? JSON.parse(rawAbsen) : generateAutoSeededData();
+                dataKegiatan = rawKegiatan ? JSON.parse(rawKegiatan) : [];
+                dataAbsensi = rawAbsen ? JSON.parse(rawAbsen) : [];
 
                 sortKegiatan();
                 renderSantriList();
@@ -1354,6 +1272,83 @@
                 renderDashboardStats();
             } finally {
                 showLoadingOverlay(false);
+            }
+        }
+
+        // SILENT SYNC TO FETCH LATEST CHANGES WITHOUT DISRUPTING USER TYPING (For Multi-device Responsiveness)
+        async function silentSyncDatabase() {
+            try {
+                const { data: santriData } = await supabaseClient.from('santri').select('*');
+                const { data: kegiatanData } = await supabaseClient.from('kegiatan').select('*');
+                const { data: absensiData } = await supabaseClient.from('absensi').select('*');
+
+                if (santriData) dataSantri = santriData;
+                if (kegiatanData) dataKegiatan = kegiatanData;
+                if (absensiData) dataAbsensi = absensiData;
+
+                sortKegiatan();
+                
+                // Re-render components safely in the background
+                renderSantriList();
+                renderKegiatanList();
+                populateSelectors();
+                renderDashboardStats();
+                
+                // If the user is actively taking attendance, keep sheet updated
+                if (!document.getElementById('lembar-absensi-container').classList.contains('hidden')) {
+                    const activeSessionInDb = dataAbsensi.find(a => a.date === activeAbsensiSession.date && a.activityId === activeAbsensiSession.activityId);
+                    if (activeSessionInDb) {
+                        // Merge notes and attendance gracefully without overriding what they might currently be clicking
+                        Object.keys(activeSessionInDb.attendance).forEach(key => {
+                            if (!activeAbsensiSession.attendance[key]) {
+                                activeAbsensiSession.attendance[key] = activeSessionInDb.attendance[key];
+                            }
+                        });
+                    }
+                }
+            } catch (err) {
+                console.warn("Background sync failed silently (likely temporary offline state).", err);
+            }
+        }
+
+        // SUPABASE REALTIME CHANNEL SETUP WITH SAFE FALLBACK IF WEBSOCKETS ARE BLOCKED IN CANVAS
+        function setupRealtimeSync() {
+            // Background periodic pull as a solid fallback (every 10 seconds)
+            setInterval(silentSyncDatabase, 10000);
+
+            try {
+                // Cek apakah browser mendukung WebSocket secara umum sebelum inisialisasi
+                if (typeof window.WebSocket === 'undefined') {
+                    console.warn("WebSocket tidak tersedia di peramban ini. Mengandalkan sinkronisasi berkala HTTP Polling.");
+                    return;
+                }
+
+                // Inisialisasi kanal real-time
+                const channel = supabaseClient.channel('realtime-absensi-sync');
+
+                channel
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'santri' }, () => {
+                        silentSyncDatabase();
+                    })
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'kegiatan' }, () => {
+                        silentSyncDatabase();
+                    })
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'absensi' }, () => {
+                        silentSyncDatabase();
+                    });
+
+                // Lakukan subscribe dengan menyematkan penangkap eror kustom
+                channel.subscribe((status, err) => {
+                    if (err || status === 'CHANNEL_ERROR') {
+                        console.warn("WebSocket diblokir oleh kebijakan keamanan Sandbox/Canvas. Sistem beralih ke HTTP Polling.");
+                        try {
+                            // Hapus kanal agar tidak terus mencoba melakukan rekoneksi ulang yang memicu spam eror
+                            supabaseClient.removeChannel(channel);
+                        } catch (e) {}
+                    }
+                });
+            } catch (err) {
+                console.warn("Gagal menginisialisasi WebSocket Supabase (Akses ditolak di lingkungan Canvas). Menggunakan Polling HTTP.", err);
             }
         }
 
@@ -1872,7 +1867,7 @@
             );
         }
 
-        // ================= ABSENSI LOGIC =================
+        // ================= ABSENSI TAB =================
         function buatLembarAbsen() {
             const dateVal = document.getElementById('absensi-tanggal').value;
             const activityIdVal = document.getElementById('absensi-kegiatan').value;
@@ -1908,7 +1903,7 @@
                         activeAbsensiSession.notes[s.id] = '';
                     }
                 });
-                showToast("Sesi absen baru berhasil dibuat.");
+                showToast("Sesi absen baru dibuat.");
             }
 
             const kegiatanObj = dataKegiatan.find(k => k.id === activityIdVal);

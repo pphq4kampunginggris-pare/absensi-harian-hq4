@@ -198,6 +198,23 @@
         </div>
     </header>
 
+    <!-- Jadwal Shalat Strip -->
+    <div class="bg-emerald-900 text-white/90 border-t border-emerald-700/30 py-2 px-4 shadow-inner">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div class="flex items-center gap-1.5 font-bold text-amber-300 text-xs shrink-0">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>Jadwal Shalat Kediri (Pare):</span>
+            </div>
+            <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-[10px] sm:text-xs font-semibold">
+                <span class="bg-black/20 px-2 py-0.5 rounded-lg border border-white/5 flex items-center gap-1">Subuh <strong class="text-white font-mono" id="sholat-subuh">04:25</strong></span>
+                <span class="bg-black/20 px-2 py-0.5 rounded-lg border border-white/5 flex items-center gap-1">Dzuhur <strong class="text-white font-mono" id="sholat-dzuhur">11:42</strong></span>
+                <span class="bg-black/20 px-2 py-0.5 rounded-lg border border-white/5 flex items-center gap-1">Ashar <strong class="text-white font-mono" id="sholat-ashar">14:59</strong></span>
+                <span class="bg-black/20 px-2 py-0.5 rounded-lg border border-white/5 flex items-center gap-1">Maghrib <strong class="text-white font-mono" id="sholat-maghrib">17:35</strong></span>
+                <span class="bg-black/20 px-2 py-0.5 rounded-lg border border-white/5 flex items-center gap-1">Isya <strong class="text-white font-mono" id="sholat-isya">18:48</strong></span>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Workspace -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6">
         
@@ -874,6 +891,8 @@
             updateClock();
             setInterval(updateClock, 1000);
 
+            fetchPrayerTimes();
+
             document.getElementById('absensi-tanggal').value = getTodayDateString();
             document.addEventListener('keydown', handlePhysicalKeyboard);
 
@@ -1110,6 +1129,24 @@
             const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             document.getElementById('live-date').innerText = now.toLocaleDateString('id-ID', optionsDate);
             document.getElementById('live-time').innerText = now.toLocaleTimeString('id-ID') + ' WIB';
+        }
+
+        async function fetchPrayerTimes() {
+            try {
+                // Memanggil jadwal shalat untuk wilayah Kediri dengan metode Kemenag RI (Method 11)
+                const response = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Kediri&country=Indonesia&method=11');
+                const res = await response.json();
+                if (res && res.code === 200 && res.data && res.data.timings) {
+                    const times = res.data.timings;
+                    document.getElementById('sholat-subuh').innerText = times.Fajr;
+                    document.getElementById('sholat-dzuhur').innerText = times.Dhuhr;
+                    document.getElementById('sholat-ashar').innerText = times.Asr;
+                    document.getElementById('sholat-maghrib').innerText = times.Maghrib;
+                    document.getElementById('sholat-isya').innerText = times.Isha;
+                }
+            } catch (err) {
+                console.warn("Gagal mengambil waktu shalat dari server, menggunakan estimasi waktu lokal Kediri (Pare).", err);
+            }
         }
 
         function getTodayDateString() {

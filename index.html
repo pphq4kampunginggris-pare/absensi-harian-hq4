@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Absensi Santri - PP. Hamalatul Qur'an Putri 4</title>
+    <title>Sistem Absensi & Izin Santri - PP. Hamalatul Qur'an Putri 4</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
@@ -153,11 +153,7 @@
             
             <div class="space-y-3">
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">PIN Saat Ini</label>
-                    <input type="password" id="input-old-pin" maxlength="6" class="w-full text-center tracking-widest text-lg font-bold border border-gray-200 rounded-xl p-2.5 focus:ring-1 focus:ring-emerald-500 focus:outline-none" placeholder="••••••" />
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">PIN Baru Anda (4-6 Digit)</label>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">PIN Baru Anda (4-6 Digit)</label>
                     <input type="password" id="input-new-pin" maxlength="6" class="w-full text-center tracking-widest text-lg font-bold border border-gray-200 rounded-xl p-2.5 focus:ring-1 focus:ring-emerald-500 focus:outline-none" placeholder="••••••" />
                 </div>
             </div>
@@ -188,6 +184,11 @@
             </div>
             <!-- Live Date, Time & Quick Lock -->
             <div class="flex items-center gap-2 md:gap-3 shrink-0">
+                <!-- Tombol Lonceng Notifikasi HP -->
+                <button id="btn-notification-toggle" onclick="toggleNotificationPermission()" class="bg-white/10 hover:bg-emerald-600 border border-white/10 hover:border-emerald-500 p-2 md:p-2.5 rounded-xl text-white transition-all duration-300 hover:scale-105 flex items-center justify-center shrink-0 relative" title="Aktifkan Notifikasi HP">
+                    <i class="fa-solid fa-bell text-xs md:text-base"></i>
+                    <span id="notification-badge" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full hidden"></span>
+                </button>
                 <div class="bg-black/20 px-3 py-1.5 rounded-xl border border-white/10 text-right hidden sm:block">
                     <div id="live-date" class="font-bold text-[10px] md:text-sm text-white">Selasa, 14 Juli 2026</div>
                     <div id="live-time" class="text-[9px] md:text-[11px] text-emerald-300 font-mono tracking-wider mt-0.5">19:45:00 WIB</div>
@@ -227,6 +228,9 @@
             </button>
             <button onclick="switchTab('absensi')" id="btn-tab-absensi" class="tab-btn shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all duration-300 text-gray-600 hover:bg-gray-100">
                 <i class="fa-solid fa-clipboard-user text-xs"></i> Absensi Harian
+            </button>
+            <button onclick="switchTab('izin')" id="btn-tab-izin" class="tab-btn shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all duration-300 text-gray-600 hover:bg-gray-100">
+                <i class="fa-solid fa-id-card text-xs"></i> Izin Keluar/Pulang
             </button>
             <button onclick="switchTab('rekap')" id="btn-tab-rekap" class="tab-btn shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all duration-300 text-gray-600 hover:bg-gray-100">
                 <i class="fa-solid fa-calendar-check text-xs"></i> Rekap Mingguan
@@ -319,48 +323,26 @@
             </div>
 
             <!-- Welcome & Quick Steps -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 gap-6">
                 <!-- Welcome Card -->
-                <div class="bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-700 text-white p-6 md:p-8 rounded-3xl lg:col-span-2 shadow-lg shadow-emerald-900/10 flex flex-col justify-between relative overflow-hidden">
+                <div class="bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-700 text-white p-6 md:p-8 rounded-3xl shadow-lg shadow-emerald-900/10 flex flex-col justify-between relative overflow-hidden">
                     <div class="absolute top-0 right-0 transform translate-x-10 -translate-y-10 text-emerald-600 opacity-20 pointer-events-none">
                         <i class="fa-solid fa-book-quran text-[18rem]"></i>
                     </div>
                     <div class="relative z-10">
                         <span class="bg-amber-400 text-emerald-950 px-3.5 py-1.5 rounded-full text-[10px] md:text-xs font-extrabold tracking-widest uppercase shadow-md shadow-amber-500/10 inline-block">Ahlan Wa Sahlan</span>
                         <h2 class="text-lg md:text-3xl font-extrabold mt-3 md:mt-4 leading-snug">Portal Presensi HQ Putri 4</h2>
-                        <p class="text-emerald-100 text-xs md:text-sm mt-2 max-w-lg leading-relaxed">
-                            Mulai dengan merekam kehadiran santriwati, mengelola agenda wajib harian pesantren secara dinamis, dan melakukan rekapitulasi data otomatis kapan saja.
+                        <p class="text-emerald-100 text-xs md:text-sm mt-2 max-w-3xl leading-relaxed">
+                            Mulai dengan merekam kehadiran santriwati, mengelola agenda wajib harian pesantren secara dinamis, mengajukan perizinan santri oleh Pengasuh, serta konfirmasi keamanan digital.
                         </p>
                     </div>
                     <div class="flex flex-wrap gap-2 md:gap-3 mt-6 md:mt-8 relative z-10">
                         <button onclick="switchTab('absensi')" class="bg-white text-emerald-800 hover:bg-emerald-50 px-4 py-2.5 rounded-xl font-bold text-xs transition-all duration-300 shadow-md">
                             <i class="fa-solid fa-pencil-alt mr-1"></i> Mulai Absen Sekarang
                         </button>
-                        <button onclick="switchTab('santri')" class="bg-emerald-600/50 hover:bg-emerald-600/70 border border-emerald-500/30 text-white px-4 py-2.5 rounded-xl font-bold text-xs transition-all duration-300">
-                            <i class="fa-solid fa-user-plus mr-1"></i> Tambah Santri
+                        <button onclick="switchTab('izin')" class="bg-amber-400 text-emerald-950 hover:bg-amber-300 px-4 py-2.5 rounded-xl font-bold text-xs transition-all duration-300 shadow-md">
+                            <i class="fa-solid fa-id-card mr-1"></i> Izin Keluar/Pulang
                         </button>
-                    </div>
-                </div>
-
-                <!-- Keamanan Widget Card -->
-                <div class="bg-white p-5 md:p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <h4 class="text-sm md:text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
-                            <i class="fa-solid fa-shield-halved text-emerald-600"></i> Proteksi Sistem
-                        </h4>
-                        <p class="text-xs text-gray-500 leading-relaxed mb-4">
-                            Seluruh data digital pesantren terlindungi sandi pengaman.
-                            <span class="text-gray-200 cursor-help select-none ml-0.5 text-xs" title="Ketuk logo Masjid di kiri atas sebanyak 5 kali untuk membuka jendela Rahasia Ganti PIN">★</span>
-                        </p>
-                        
-                        <div class="space-y-2">
-                            <button onclick="lockAppInstantly()" class="w-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 text-emerald-800 font-bold py-2.5 rounded-xl text-xs transition-colors flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-lock text-emerald-600"></i> Amankan & Kunci Layar
-                            </button>
-                        </div>
-                    </div>
-                    <div class="pt-4 border-t border-gray-100 mt-4 text-center">
-                        <span class="text-[9px] md:text-[10px] text-gray-400 font-medium">PP. Hamalatul Qur'an Putri 4 Al-Karima</span>
                     </div>
                 </div>
             </div>
@@ -495,6 +477,135 @@
                 </div>
                 <h4 class="text-sm font-bold text-gray-800">Lembar Absensi Belum Terbuka</h4>
                 <p class="text-gray-400 text-[11px] mt-1 max-w-xs mx-auto">Silakan tentukan parameter di atas lalu klik "Buka Lembar Absen" untuk memulai pencatatan.</p>
+            </div>
+        </section>
+
+        <!-- ================= IZIN TAB (FITUR BARU) ================= -->
+        <section id="tab-izin" class="tab-content hidden">
+            <!-- Grid Layout: Form Pengajuan Keamanan & Panel Persetujuan Pengasuh -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Left Column: Form Keamanan (4 Cols) -->
+                <div class="lg:col-span-4 bg-white p-5 rounded-3xl border border-gray-100 shadow-sm h-fit">
+                    <div class="flex items-center gap-2.5 mb-4 text-emerald-800">
+                        <div class="p-2 bg-emerald-100 text-emerald-700 rounded-xl">
+                            <i class="fa-solid fa-shield-halved text-base"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm md:text-base font-extrabold text-gray-800">Form Keamanan</h3>
+                            <p class="text-[10px] text-gray-400 font-medium">Pengajuan Izin Keluar/Pulang Santri</p>
+                        </div>
+                    </div>
+                    
+                    <form id="form-pengajuan-izin" onsubmit="event.preventDefault(); ajukanIzinSantri();" class="space-y-3.5">
+                        <!-- Select Santri -->
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Pilih Santriwati</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                                    <i class="fa-solid fa-user-graduate text-xs"></i>
+                                </span>
+                                <select id="izin-santri-id" required class="pl-9 w-full rounded-xl border border-gray-200 py-2.5 px-3 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500 appearance-none bg-white">
+                                    <option value="">-- Pilih Santri --</option>
+                                    <!-- Populated dynamically -->
+                                </select>
+                                <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 pointer-events-none">
+                                    <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Type of Permit -->
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Tipe Izin</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <label class="border border-gray-200 rounded-xl p-2.5 flex items-center gap-2 cursor-pointer hover:bg-gray-50 transition-colors">
+                                    <input type="radio" name="izin-tipe" value="Keluar" checked class="text-emerald-600 focus:ring-emerald-500">
+                                    <div class="text-left">
+                                        <p class="text-[11px] font-bold text-gray-700">Izin Keluar</p>
+                                        <p class="text-[9px] text-gray-400">Sementara / Hari ini</p>
+                                    </div>
+                                </label>
+                                <label class="border border-gray-200 rounded-xl p-2.5 flex items-center gap-2 cursor-pointer hover:bg-gray-50 transition-colors">
+                                    <input type="radio" name="izin-tipe" value="Pulang" class="text-emerald-600 focus:ring-emerald-500">
+                                    <div class="text-left">
+                                        <p class="text-[11px] font-bold text-gray-700">Izin Pulang</p>
+                                        <p class="text-[9px] text-gray-400">Pulang ke rumah (Menginap)</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Keperluan / Reason -->
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Keperluan / Alasan</label>
+                            <div class="relative">
+                                <span class="absolute top-3 left-3 text-gray-400">
+                                    <i class="fa-solid fa-comment-dots text-xs"></i>
+                                </span>
+                                <textarea id="izin-keperluan" required rows="2" placeholder="Contoh: Berobat ke dokter gigi Pare, jenguk nenek sakit..." class="pl-9 w-full rounded-xl border border-gray-200 p-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Estimasi Kembali -->
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Estimasi Waktu Kembali</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                                    <i class="fa-solid fa-hourglass-half text-xs"></i>
+                                </span>
+                                <input type="text" id="izin-estimasi" required placeholder="Contoh: Pukul 15:00 WIB, atau 3 Hari" class="pl-9 w-full rounded-xl border border-gray-200 p-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500" />
+                            </div>
+                        </div>
+
+                        <!-- Catatan Keamanan -->
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Catatan Tambahan Keamanan</label>
+                            <input type="text" id="izin-catatan-keamanan" placeholder="Contoh: Dijemput bapak kandung, naik motor..." class="w-full rounded-xl border border-gray-200 p-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500 text-left" />
+                        </div>
+
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition-all duration-300 flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/15">
+                            <i class="fa-solid fa-paper-plane"></i> Ajukan Izin ke Pengasuh
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Right Column: Panel Persetujuan Pengasuh (8 Cols) -->
+                <div class="lg:col-span-8 bg-white p-5 rounded-3xl border border-gray-100 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                            <div class="flex items-center gap-2.5 text-teal-800">
+                                <div class="p-2 bg-emerald-100 text-emerald-700 rounded-xl">
+                                    <i class="fa-solid fa-user-shield text-base"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm md:text-base font-extrabold text-gray-800 text-left">Persetujuan Pengasuh</h3>
+                                    <p class="text-[10px] text-gray-400 font-medium">Konfirmasi, Balasan & Log Keputusan Pengasuh</p>
+                                </div>
+                            </div>
+                            <!-- Filter Tabs inside panel -->
+                            <div class="flex p-0.5 bg-gray-100 rounded-lg gap-0.5 self-start sm:self-auto text-[10px] font-semibold">
+                                <button onclick="filterIzinView('SEMUA')" id="btn-filter-izin-semua" class="px-2.5 py-1 rounded-md bg-white text-gray-800 shadow-sm">Semua</button>
+                                <button onclick="filterIzinView('PENDING')" id="btn-filter-izin-pending" class="px-2.5 py-1 rounded-md text-gray-500 hover:text-gray-800">Menunggu</button>
+                                <button onclick="filterIzinView('AKTIF')" id="btn-filter-izin-aktif" class="px-2.5 py-1 rounded-md text-gray-500 hover:text-gray-800">Aktif</button>
+                                <button onclick="filterIzinView('SELESAI')" id="btn-filter-izin-selesai" class="px-2.5 py-1 rounded-md text-gray-500 hover:text-gray-800">Kembali</button>
+                            </div>
+                        </div>
+
+                        <!-- Interactive Permits Cards Grid -->
+                        <div id="grid-log-izin" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[550px] overflow-y-auto pr-1">
+                            <!-- Populated dynamically -->
+                        </div>
+
+                        <!-- Empty State for Permits -->
+                        <div id="izin-empty-state" class="hidden text-center py-12 text-gray-400">
+                            <i class="fa-solid fa-folder-open text-4xl mb-3 text-gray-300"></i>
+                            <h4 class="text-xs font-bold text-gray-700">Tidak Ada Data Izin</h4>
+                            <p class="text-[10px] text-gray-450 mt-1">Belum ada pengajuan izin keluar atau izin pulang santri saat ini.</p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </section>
 
@@ -822,6 +933,7 @@
         const DB_KEGIATAN_KEY = 'hq_putri4_kegiatan';
         const DB_ABSEN_KEY = 'hq_putri4_absensi';
         const DB_PIN_KEY = 'hq_putri4_secure_pin';
+        const DB_IZIN_KEY = 'hq_putri4_izin'; // New Key for permits local storage
 
         // Initialize Supabase Client
         const SUPABASE_URL = 'https://ogbvyeypznbwurmsmwld.supabase.co';
@@ -863,6 +975,12 @@
         let dataSantri = [];
         let dataKegiatan = [];
         let dataAbsensi = []; 
+        let dataIzin = []; // Global Izin state
+
+        // Tracking Variables for Real-time Multi-device Notifications
+        let previousIzinLength = null;
+        let previousAbsenLength = null;
+        let previousIzinStates = {}; // To detect status changes of exit permits (Approved, Done, etc.)
 
         let activeAbsensiSession = {
             date: '',
@@ -870,6 +988,9 @@
             attendance: {}, 
             notes: {} 
         };
+
+        // Izin module state
+        let currentIzinFilter = 'SEMUA';
 
         // PIN Security State variables
         let appPinCode = '';
@@ -900,6 +1021,151 @@
 
             // Establish real-time safe HTTP polling (Resolves canvas websocket SecurityError completely)
             setupSafePollingSync();
+
+            // Check and update notification bell status on load
+            checkNotificationPermissionStatus();
+        }
+
+        // --- SINKRONISASI SUARA NOTIFIKASI NYATA (SINTESIS NYATA) ---
+        function playNotificationChime() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const now = ctx.currentTime;
+                
+                // Sintesis lonceng kristal ganda khas notifikasi iOS/modern
+                const osc1 = ctx.createOscillator();
+                const osc2 = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(659.25, now); // E5
+                osc1.frequency.exponentialRampToValueAtTime(1046.50, now + 0.12); // C6
+                
+                osc2.type = 'triangle';
+                osc2.frequency.setValueAtTime(523.25, now); // C5
+                osc2.frequency.exponentialRampToValueAtTime(1318.51, now + 0.15); // E6
+                
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(ctx.destination);
+                
+                osc1.start(now);
+                osc2.start(now);
+                osc1.stop(now + 0.5);
+                osc2.stop(now + 0.5);
+            } catch (err) {
+                console.warn("AudioContext diblokir interaksi browser, butuh klik layar:", err);
+            }
+        }
+
+        // --- SISTEM NOTIFIKASI SISTEM DAN DESAIN MOBILE IN-APP SLIDEDOWN BANNER ---
+        function sendSystemNotification(title, body, type = 'success') {
+            // Putar audio notifikasi
+            playNotificationChime();
+
+            // 1. Coba kirim via Web Notification API perangkat (Sistem HP/Desktop)
+            if (window.Notification && Notification.permission === "granted") {
+                try {
+                    new Notification(`HQ Putri 4: ${title}`, {
+                        body: body,
+                        icon: "https://placehold.co/128x128/15803d/ffffff?text=HQ"
+                    });
+                } catch (e) {
+                    console.warn("Gagal mengirim via System Notification API", e);
+                }
+            }
+
+            // 2. Selalu tampilkan Spanduk Notifikasi Premium di Dalam Aplikasi ala iOS/Android
+            const banner = document.createElement('div');
+            banner.className = 'fixed top-4 left-1/2 -translate-x-1/2 w-11/12 max-w-sm bg-white/95 backdrop-blur-md rounded-2xl border border-gray-100 shadow-2xl z-[9999] flex p-3.5 gap-3 transform -translate-y-40 transition-all duration-500 ease-out cursor-pointer pointer-events-auto';
+            
+            let themeIcon = "fa-bell text-emerald-600 bg-emerald-100";
+            if (type === 'error') themeIcon = "fa-circle-exclamation text-rose-600 bg-rose-100";
+            else if (type === 'info') themeIcon = "fa-id-card text-blue-600 bg-blue-100";
+
+            banner.innerHTML = `
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-base ${themeIcon}">
+                    <i class="fa-solid ${themeIcon.split(' ')[0]}"></i>
+                </div>
+                <div class="flex-grow text-left">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-extrabold text-emerald-800 uppercase tracking-widest">Aplikasi Pesantren</span>
+                        <span class="text-[9px] text-gray-400">Sekarang</span>
+                    </div>
+                    <h5 class="text-xs font-bold text-gray-800 mt-0.5">${title}</h5>
+                    <p class="text-[10px] text-gray-500 leading-normal mt-0.5">${body}</p>
+                </div>
+            `;
+
+            document.body.appendChild(banner);
+
+            // Geser turun ke bawah
+            setTimeout(() => {
+                banner.classList.remove('-translate-y-40');
+                banner.classList.add('translate-y-0');
+            }, 50);
+
+            // Fungsi tutup ketika diketuk
+            banner.onclick = () => {
+                banner.classList.remove('translate-y-0');
+                banner.classList.add('-translate-y-40');
+                setTimeout(() => banner.remove(), 500);
+            };
+
+            // Hapus otomatis setelah 6 detik
+            setTimeout(() => {
+                if (banner.parentNode) {
+                    banner.classList.remove('translate-y-0');
+                    banner.classList.add('-translate-y-40');
+                    setTimeout(() => banner.remove(), 500);
+                }
+            }, 6000);
+        }
+
+        // --- PENYELARASAN IZIN NOTIFIKASI HP ---
+        function checkNotificationPermissionStatus() {
+            const btn = document.getElementById('btn-notification-toggle');
+            const badge = document.getElementById('notification-badge');
+            if (!btn) return;
+
+            if (window.Notification) {
+                if (Notification.permission === "granted") {
+                    btn.className = "bg-emerald-600 hover:bg-emerald-700 border border-emerald-500 p-2 md:p-2.5 rounded-xl text-white transition-all duration-300 hover:scale-105 flex items-center justify-center shrink-0 relative";
+                    badge.classList.remove('hidden');
+                } else if (Notification.permission === "denied") {
+                    btn.className = "bg-rose-100 hover:bg-rose-200 border border-rose-200 p-2 md:p-2.5 rounded-xl text-rose-600 transition-all duration-300 hover:scale-105 flex items-center justify-center shrink-0 relative";
+                    badge.classList.add('hidden');
+                } else {
+                    btn.className = "bg-white/10 hover:bg-emerald-600 border border-white/10 hover:border-emerald-500 p-2 md:p-2.5 rounded-xl text-white transition-all duration-300 hover:scale-105 flex items-center justify-center shrink-0 relative";
+                    badge.classList.add('hidden');
+                }
+            }
+        }
+
+        async function toggleNotificationPermission() {
+            if (!window.Notification) {
+                showToast("Perangkat atau browser Anda tidak mendukung Notifikasi HP.", "error");
+                return;
+            }
+
+            if (Notification.permission === "granted") {
+                showToast("Notifikasi HP sistem sudah diaktifkan ustadzah!", "info");
+                return;
+            }
+
+            const permission = await Notification.requestPermission();
+            checkNotificationPermissionStatus();
+
+            if (permission === "granted") {
+                sendSystemNotification("Pemberitahuan Aktif", "Alhamdulillah, notifikasi HP resmi dari PP. Hamalatul Qur'an telah aktif!");
+            } else {
+                showToast("Izin notifikasi ditolak. Spanduk aplikasi dalam-layar tetap aktif.", "info");
+            }
         }
 
         // --- LOADING INDICATOR CONTROLLER ---
@@ -1079,7 +1345,6 @@
 
         // --- GANTI PIN MODAL HANDLERS ---
         function openChangePinModal() {
-            document.getElementById('input-old-pin').value = '';
             document.getElementById('input-new-pin').value = '';
 
             const modal = document.getElementById('pin-change-modal');
@@ -1100,17 +1365,10 @@
         }
 
         function processChangePin() {
-            const oldPinInput = document.getElementById('input-old-pin').value.trim();
             const newPinInput = document.getElementById('input-new-pin').value.trim();
-            const activePinStored = localStorage.getItem(DB_PIN_KEY);
 
-            if (!oldPinInput || !newPinInput) {
-                showToast("Harap isi kedua kolom PIN!", "error");
-                return;
-            }
-
-            if (oldPinInput !== activePinStored) {
-                showToast("PIN saat ini yang dimasukkan tidak cocok!", "error");
+            if (!newPinInput) {
+                showToast("Harap isi kolom PIN baru!", "error");
                 return;
             }
 
@@ -1273,7 +1531,6 @@
                 if (kegiatanData && kegiatanData.length > 0) {
                     dataKegiatan = kegiatanData;
                 } else {
-                    // We keep it empty as requested by user to start from scratch (nol)
                     dataKegiatan = [];
                 }
 
@@ -1286,11 +1543,34 @@
 
                 dataAbsensi = absensiData || [];
 
+                // Fetch Izin
+                const { data: izinData, error: izinError } = await supabaseClient
+                    .from('izin')
+                    .select('*');
+                
+                if (!izinError && izinData) {
+                    dataIzin = izinData;
+                } else {
+                    const rawIzin = localStorage.getItem(DB_IZIN_KEY);
+                    dataIzin = rawIzin ? JSON.parse(rawIzin) : [];
+                }
+
                 sortKegiatan();
                 renderSantriList();
                 renderKegiatanList();
                 populateSelectors();
+                populateIzinSelectors();
+                renderIzinGrid();
                 renderDashboardStats();
+
+                // Initialize trackers to prevent duplicate alerts upon initial refresh
+                previousIzinLength = dataIzin.length;
+                previousAbsenLength = dataAbsensi.length;
+                previousIzinStates = {};
+                dataIzin.forEach(item => {
+                    previousIzinStates[item.id] = item.status;
+                });
+
                 showToast("Sinkronisasi database cloud sukses!", "success");
             } catch (err) {
                 console.error("Gagal sinkronisasi Supabase:", err);
@@ -1300,16 +1580,28 @@
                 const rawSantri = localStorage.getItem(DB_SANTRI_KEY);
                 const rawKegiatan = localStorage.getItem(DB_KEGIATAN_KEY);
                 const rawAbsen = localStorage.getItem(DB_ABSEN_KEY);
+                const rawIzin = localStorage.getItem(DB_IZIN_KEY);
 
                 dataSantri = rawSantri ? JSON.parse(rawSantri) : [...sampleSantri];
                 dataKegiatan = rawKegiatan ? JSON.parse(rawKegiatan) : [];
                 dataAbsensi = rawAbsen ? JSON.parse(rawAbsen) : [];
+                dataIzin = rawIzin ? JSON.parse(rawIzin) : [];
 
                 sortKegiatan();
                 renderSantriList();
                 renderKegiatanList();
                 populateSelectors();
+                populateIzinSelectors();
+                renderIzinGrid();
                 renderDashboardStats();
+
+                // Local tracker initialization
+                previousIzinLength = dataIzin.length;
+                previousAbsenLength = dataAbsensi.length;
+                previousIzinStates = {};
+                dataIzin.forEach(item => {
+                    previousIzinStates[item.id] = item.status;
+                });
             } finally {
                 showLoadingOverlay(false);
             }
@@ -1321,10 +1613,55 @@
                 const { data: santriData } = await supabaseClient.from('santri').select('*');
                 const { data: kegiatanData } = await supabaseClient.from('kegiatan').select('*');
                 const { data: absensiData } = await supabaseClient.from('absensi').select('*');
+                const { data: izinData } = await supabaseClient.from('izin').select('*');
 
                 if (santriData) dataSantri = santriData;
                 if (kegiatanData) dataKegiatan = kegiatanData;
-                if (absensiData) dataAbsensi = absensiData;
+
+                // DETEKSI PERUBAHAN ABSENSI DARI HP LAIN
+                if (absensiData) {
+                    if (previousAbsenLength !== null && absensiData.length > previousAbsenLength) {
+                        const newAbsens = absensiData.filter(dbA => !dataAbsensi.some(localA => localA.id === dbA.id));
+                        newAbsens.forEach(newA => {
+                            const kegiatanObj = dataKegiatan.find(k => k.id === newA.activity_id);
+                            const namaKeg = kegiatanObj ? kegiatanObj.nama : "Kegiatan Pesantren";
+                            sendSystemNotification("Absensi Baru Masuk", `Lembar kehadiran untuk kegiatan "${namaKeg}" pada tanggal ${newA.date} telah disimpan di cloud.`);
+                        });
+                    }
+                    dataAbsensi = absensiData;
+                    previousAbsenLength = absensiData.length;
+                }
+
+                // DETEKSI PERUBAHAN IZIN KELUAR DARI HP LAIN
+                if (izinData) {
+                    // 1. Deteksi Pengajuan Izin Baru
+                    if (previousIzinLength !== null && izinData.length > previousIzinLength) {
+                        const newIzins = izinData.filter(dbI => !dataIzin.some(localI => localI.id === dbI.id));
+                        newIzins.forEach(newI => {
+                            sendSystemNotification("Pengajuan Izin Baru", `Keamanan mengajukan Izin ${newI.tipe} untuk santriwati: ${newI.santri_nama} (${newI.keperluan}).`, "info");
+                        });
+                    }
+
+                    // 2. Deteksi Perubahan Status Izin (Ditolak, Disetujui, Selesai/Kembali)
+                    izinData.forEach(dbItem => {
+                        const oldStatus = previousIzinStates[dbItem.id];
+                        if (oldStatus !== undefined && oldStatus !== dbItem.status) {
+                            let textAlert = `Status Izin ${dbItem.santri_nama} diperbarui menjadi: "${dbItem.status}".`;
+                            if (dbItem.status === 'Disetujui') {
+                                textAlert = `Pengasuh menyetujui izin keluar ${dbItem.santri_nama}. Gerbang digital dibuka!`;
+                            } else if (dbItem.status === 'Selesai') {
+                                textAlert = `${dbItem.santri_nama} dikonfirmasi telah kembali ke pesantren dengan selamat.`;
+                            } else if (dbItem.status === 'Ditolak') {
+                                textAlert = `Izin ${dbItem.santri_nama} ditolak oleh Pengasuh: ${dbItem.catatan_pengasuh || '-'}`;
+                            }
+                            sendSystemNotification("Pembaruan Status Gerbang", textAlert, "info");
+                        }
+                        previousIzinStates[dbItem.id] = dbItem.status;
+                    });
+
+                    dataIzin = izinData;
+                    previousIzinLength = izinData.length;
+                }
 
                 sortKegiatan();
                 
@@ -1332,6 +1669,8 @@
                 renderSantriList();
                 renderKegiatanList();
                 populateSelectors();
+                populateIzinSelectors();
+                renderIzinGrid();
                 renderDashboardStats();
                 
                 // If the user is actively taking attendance, keep sheet updated
@@ -1401,7 +1740,6 @@
             const targetBtn = document.getElementById(`btn-tab-${tabId}`);
             if (targetBtn) {
                 targetBtn.classList.remove('text-gray-600', 'hover:bg-gray-100');
-                targetBtn.text_white = true;
                 targetBtn.classList.add('bg-emerald-600', 'text-white', 'shadow-md', 'shadow-emerald-600/10');
                 targetBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
             }
@@ -1410,6 +1748,9 @@
                 renderDashboardStats();
             } else if (tabId === 'rekap') {
                 prosesRekap();
+            } else if (tabId === 'izin') {
+                populateIzinSelectors();
+                renderIzinGrid();
             }
         }
 
@@ -1432,6 +1773,23 @@
 
             if (dataKegiatan.some(k => k.id === oldAbsenVal)) selectAbsenKegiatan.value = oldAbsenVal;
             if (dataKegiatan.some(k => k.id === oldRekapVal)) selectRekapFilter.value = oldRekapVal;
+        }
+
+        // Populates the Santri dropdown in the permits tab form
+        function populateIzinSelectors() {
+            const selectIzinSantri = document.getElementById('izin-santri-id');
+            if (!selectIzinSantri) return;
+            
+            const prevVal = selectIzinSantri.value;
+            selectIzinSantri.innerHTML = '<option value="">-- Pilih Santri --</option>';
+            
+            // Sort santri alphabetically for convenience
+            const sortedSantri = [...dataSantri].sort((a, b) => a.nama.localeCompare(b.nama));
+            sortedSantri.forEach(s => {
+                selectIzinSantri.innerHTML += `<option value="${s.id}">${s.nama} (${s.grup || '-'})</option>`;
+            });
+
+            if (dataSantri.some(s => s.id === prevVal)) selectIzinSantri.value = prevVal;
         }
 
         // --- DASHBOARD CALCULATOR ---
@@ -1467,6 +1825,7 @@
         function renderSavedAbsensiLogs() {
             const tbody = document.getElementById('tabel-riwayat-presensi');
             const emptyState = document.getElementById('riwayat-empty-state');
+            if (!tbody) return;
             tbody.innerHTML = '';
 
             if (dataAbsensi.length === 0) {
@@ -1604,6 +1963,7 @@
             const tableBody = document.getElementById('tabel-daftar-santri');
             const searchKeyword = document.getElementById('search-santri').value.toLowerCase();
             const emptyTable = document.getElementById('santri-empty-table');
+            if (!tableBody) return;
             
             tableBody.innerHTML = '';
             
@@ -1685,6 +2045,7 @@
                 resetFormSantri();
                 renderSantriList();
                 populateSelectors();
+                populateIzinSelectors();
                 renderDashboardStats();
             } catch (err) {
                 console.error("Gagal menyimpan santri ke database awan:", err);
@@ -1731,6 +2092,7 @@
                         localStorage.setItem(DB_SANTRI_KEY, JSON.stringify(dataSantri));
                         renderSantriList();
                         populateSelectors();
+                        populateIzinSelectors();
                         renderDashboardStats();
                         showToast("Data santriwati berhasil dihapus dari cloud.", "info");
                     } catch (err) {
@@ -1748,6 +2110,7 @@
             sortKegiatan();
             const tableBody = document.getElementById('tabel-daftar-kegiatan');
             const emptyTable = document.getElementById('kegiatan-empty-table');
+            if (!tableBody) return;
             
             tableBody.innerHTML = '';
 
@@ -1929,6 +2292,7 @@
 
         function renderTabelInputAbsen() {
             const tbody = document.getElementById('tabel-input-absen');
+            if (!tbody) return;
             tbody.innerHTML = '';
 
             dataSantri.forEach((s, idx) => {
@@ -2021,10 +2385,17 @@
                 }
 
                 localStorage.setItem(DB_ABSEN_KEY, JSON.stringify(dataAbsensi));
-                showToast("Absensi berhasil disimpan ke cloud database!", "success");
+                
+                // Trigger Local Notification for instant feedback
+                const kegiatanObj = dataKegiatan.find(k => k.id === activityIdVal);
+                const namaKeg = kegiatanObj ? kegiatanObj.nama : "Kegiatan";
+                sendSystemNotification("Absen Berhasil Disimpan", `Berhasil merekam presensi kegiatan "${namaKeg}" untuk tanggal ${dateVal}.`);
 
                 document.getElementById('lembar-absensi-container').classList.add('hidden');
                 document.getElementById('absen-empty-state').classList.remove('hidden');
+
+                // Update tracked stats
+                previousAbsenLength = dataAbsensi.length;
 
                 renderDashboardStats();
             } catch (err) {
@@ -2034,6 +2405,385 @@
                 showLoadingOverlay(false);
             }
         }
+
+        // =========================================================================
+        // ================= IZIN KELUAR & PULANG SYSTEM (BARU) ====================
+        // =========================================================================
+
+        // Diajukan oleh Keamanan
+        async function ajukanIzinSantri() {
+            const santriId = document.getElementById('izin-santri-id').value;
+            const tipe = document.querySelector('input[name="izin-tipe"]:checked').value;
+            const keperluan = document.getElementById('izin-keperluan').value.trim();
+            const estimasi = document.getElementById('izin-estimasi').value.trim();
+            const catatanKeamanan = document.getElementById('izin-catatan-keamanan').value.trim();
+
+            if (!santriId || !keperluan || !estimasi) {
+                showToast("Harap lengkapi semua kolom yang wajib diisi!", "error");
+                return;
+            }
+
+            const santriObj = dataSantri.find(s => s.id === santriId);
+            if (!santriObj) return;
+
+            const now = new Date();
+            const formattedTime = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+            const formattedDate = getTodayDateString();
+
+            const newIzin = {
+                id: 'IZ-' + Date.now(),
+                santri_id: santriId,
+                santri_nama: santriObj.nama,
+                santri_grup: santriObj.grup || '-',
+                tipe: tipe, // 'Keluar' (Sementara) atau 'Pulang' (Ke rumah)
+                keperluan: keperluan,
+                estimasi_kembali: estimasi,
+                tanggal_keluar: formattedDate,
+                jam_keluar: formattedTime,
+                catatan_keamanan: catatanKeamanan,
+                catatan_pengasuh: '',
+                status: 'Menunggu Konfirmasi', // Status: 'Menunggu Konfirmasi', 'Disetujui', 'Ditolak', 'Selesai'
+                tanggal_kembali: '',
+                jam_kembali: ''
+            };
+
+            showLoadingOverlay(true);
+            try {
+                // Upsert to Supabase
+                const { error } = await supabaseClient.from('izin').insert(newIzin);
+                if (error) throw error;
+
+                dataIzin.push(newIzin);
+                localStorage.setItem(DB_IZIN_KEY, JSON.stringify(dataIzin));
+
+                // Local trackers setup
+                previousIzinLength = dataIzin.length;
+                previousIzinStates[newIzin.id] = newIzin.status;
+
+                // Send instant local notification
+                sendSystemNotification("Izin Diajukan", `Berhasil mengajukan izin ${tipe} untuk ${santriObj.nama}. Menunggu keputusan Pengasuh.`, "info");
+
+                // Reset Form
+                document.getElementById('form-pengajuan-izin').reset();
+                document.getElementById('izin-catatan-keamanan').value = '';
+                
+                renderIzinGrid();
+            } catch (err) {
+                console.error("Gagal menyimpan pengajuan izin ke cloud:", err);
+                showToast("Gagal menyimpan ke cloud: " + (err.message || err) + ". Disimpan di penyimpanan lokal sementara.", "error");
+                
+                // Save locally
+                dataIzin.push(newIzin);
+                localStorage.setItem(DB_IZIN_KEY, JSON.stringify(dataIzin));
+                
+                previousIzinLength = dataIzin.length;
+                previousIzinStates[newIzin.id] = newIzin.status;
+
+                sendSystemNotification("Izin Diajukan (Offline)", `Mengajukan izin ${tipe} untuk ${santriObj.nama} (Disimpan lokal sementara).`, "info");
+                renderIzinGrid();
+            } finally {
+                showLoadingOverlay(false);
+            }
+        }
+
+        // Filters view based on status selected
+        function filterIzinView(statusFilter) {
+            currentIzinFilter = statusFilter;
+            
+            // Toggle active classes on buttons
+            const buttons = {
+                'SEMUA': 'btn-filter-izin-semua',
+                'PENDING': 'btn-filter-izin-pending',
+                'AKTIF': 'btn-filter-izin-aktif',
+                'SELESAI': 'btn-filter-izin-selesai'
+            };
+
+            Object.entries(buttons).forEach(([key, btnId]) => {
+                const el = document.getElementById(btnId);
+                if (!el) return;
+                if (key === statusFilter) {
+                    el.className = "px-2.5 py-1 rounded-md bg-white text-gray-800 shadow-sm";
+                } else {
+                    el.className = "px-2.5 py-1 rounded-md text-gray-500 hover:text-gray-800";
+                }
+            });
+
+            renderIzinGrid();
+        }
+
+        // Renders the list of permits in the Keamanan Panel
+        function renderIzinGrid() {
+            const grid = document.getElementById('grid-log-izin');
+            const emptyState = document.getElementById('izin-empty-state');
+            if (!grid) return;
+            
+            grid.innerHTML = '';
+
+            // Filter data according to selected tab
+            let filtered = [...dataIzin].sort((a, b) => b.id.localeCompare(a.id)); // Newest first
+
+            if (currentIzinFilter === 'PENDING') {
+                filtered = filtered.filter(i => i.status === 'Menunggu Konfirmasi');
+            } else if (currentIzinFilter === 'AKTIF') {
+                filtered = filtered.filter(i => i.status === 'Disetujui');
+            } else if (currentIzinFilter === 'SELESAI') {
+                filtered = filtered.filter(i => i.status === 'Selesai' || i.status === 'Ditolak');
+            }
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            filtered.forEach(item => {
+                // Determine Badge classes
+                let statusBadge = '';
+                let borderClass = 'border-gray-100';
+                
+                if (item.status === 'Menunggu Konfirmasi') {
+                    statusBadge = `<span class="bg-amber-100 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full text-[9px] font-bold"><i class="fa-solid fa-hourglass-start animate-pulse mr-1"></i>Menunggu Konfirmasi</span>`;
+                    borderClass = 'border-amber-200 bg-amber-50/10';
+                } else if (item.status === 'Disetujui') {
+                    statusBadge = `<span class="bg-emerald-100 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-full text-[9px] font-bold"><i class="fa-solid fa-circle-check mr-1"></i>Izin Aktif</span>`;
+                    borderClass = 'border-emerald-200 bg-emerald-50/10';
+                } else if (item.status === 'Ditolak') {
+                    statusBadge = `<span class="bg-rose-100 text-rose-800 border border-rose-200 px-2 py-0.5 rounded-full text-[9px] font-bold"><i class="fa-solid fa-ban mr-1"></i>Ditolak</span>`;
+                    borderClass = 'border-rose-100 bg-rose-50/5';
+                } else if (item.status === 'Selesai') {
+                    statusBadge = `<span class="bg-blue-100 text-blue-800 border border-blue-200 px-2 py-0.5 rounded-full text-[9px] font-bold"><i class="fa-solid fa-arrow-left-long mr-1"></i>Sudah Kembali</span>`;
+                    borderClass = 'border-gray-200';
+                }
+
+                const cardHtml = `
+                    <div class="bg-white rounded-2xl border ${borderClass} p-4 text-xs shadow-sm flex flex-col justify-between transition-all duration-200 hover:shadow-md relative overflow-hidden">
+                        <!-- Type Accent Line -->
+                        <div class="absolute top-0 left-0 right-0 h-1 ${item.tipe === 'Keluar' ? 'bg-sky-500' : 'bg-purple-500'}"></div>
+                        
+                        <div>
+                            <div class="flex items-start justify-between gap-1.5 mb-2.5">
+                                <div class="text-left">
+                                    <h4 class="font-extrabold text-gray-800 text-sm leading-tight">${item.santri_nama}</h4>
+                                    <p class="text-[9px] text-gray-400 mt-0.5"><i class="fa-solid fa-bed text-emerald-600"></i> ${item.santri_grup}</p>
+                                </div>
+                                <div class="flex flex-col items-end gap-1 shrink-0">
+                                    <span class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-700 text-[8px] font-extrabold uppercase">
+                                        Izin ${item.tipe}
+                                    </span>
+                                    ${statusBadge}
+                                </div>
+                            </div>
+
+                            <div class="space-y-1 text-left bg-gray-50 p-2.5 rounded-xl border border-gray-100/70 mb-3 text-[11px]">
+                                <p class="text-gray-600"><span class="font-bold text-gray-800">Keperluan:</span> ${item.keperluan}</p>
+                                <p class="text-gray-600"><span class="font-bold text-gray-800">Est. Kembali:</span> ${item.estimasi_kembali}</p>
+                                <p class="text-gray-400 text-[10px] mt-1"><i class="fa-solid fa-clock"></i> Keluar: ${item.tanggal_keluar} • ${item.jam_keluar}</p>
+                                ${item.catatan_keamanan ? `<p class="text-[10px] text-teal-800 bg-teal-50 px-1.5 py-0.5 rounded mt-1.5 border border-teal-100"><i class="fa-solid fa-quote-left text-[8px] mr-1"></i>${item.catatan_keamanan}</p>` : ''}
+                                
+                                <!-- Catatan Pengasuh / Balasan Pengasuh -->
+                                ${item.catatan_pengasuh ? `
+                                    <div class="mt-2 pt-2 border-t border-gray-200/50 text-[10px] text-emerald-850">
+                                        <p class="font-bold"><i class="fa-solid fa-user-shield text-emerald-600 mr-1"></i>Balasan Pengasuh:</p>
+                                        <p class="italic bg-emerald-50 px-1.5 py-0.5 rounded mt-0.5 border border-emerald-100">${item.catatan_pengasuh}</p>
+                                    </div>
+                                ` : ''}
+
+                                <!-- Timestamps Kembali -->
+                                ${item.tanggal_kembali ? `<p class="text-blue-700 text-[10px] font-semibold mt-1"><i class="fa-solid fa-arrow-right-to-bracket"></i> Kembali: ${item.tanggal_kembali} • ${item.jam_kembali}</p>` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons Section for Pengasuh -->
+                        <div class="flex flex-wrap gap-1.5 justify-end mt-2 pt-2.5 border-t border-gray-100">
+                            ${item.status === 'Menunggu Konfirmasi' ? `
+                                <button onclick="jawabIzinModal('${item.id}', 'Ditolak')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold px-3 py-1.5 rounded-lg transition-colors">
+                                    <i class="fa-solid fa-ban"></i> Tolak
+                                </button>
+                                <button onclick="jawabIzinModal('${item.id}', 'Disetujui')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm">
+                                    <i class="fa-solid fa-check"></i> Izinkan (Setujui)
+                                </button>
+                            ` : ''}
+
+                            ${item.status === 'Disetujui' ? `
+                                <button onclick="konfirmasiKembaliPonpes('${item.id}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-2 rounded-xl transition-all shadow-sm text-center">
+                                    <i class="fa-solid fa-arrow-left-long mr-1"></i> Konfirmasi Kembali ke Ponpes (Selesai)
+                                </button>
+                            ` : ''}
+
+                            ${item.status === 'Selesai' || item.status === 'Ditolak' ? `
+                                <button onclick="hapusCatatanIzin('${item.id}')" class="text-rose-600 hover:text-rose-800 hover:bg-rose-50 p-1.5 rounded-lg transition-colors ml-auto" title="Hapus Riwayat Izin">
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                grid.innerHTML += cardHtml;
+            });
+        }
+
+        // Dialog modal to input Caretaker (Pengasuh) Notes when answering a permit request
+        function jawabIzinModal(izinId, tindakan) {
+            const labelAksi = tindakan === 'Disetujui' ? 'Menyetujui' : 'Menolak';
+            const colorClass = tindakan === 'Disetujui' ? 'text-emerald-700' : 'text-rose-700';
+            
+            // Build temporary inline overlay for notes
+            const overlay = document.createElement('div');
+            overlay.id = 'temp-note-overlay';
+            overlay.className = 'fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[9990]';
+            overlay.innerHTML = `
+                <div class="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl transform scale-100 border border-gray-100 text-center">
+                    <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 mb-4 mx-auto text-xl">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+                    <h4 class="text-base font-bold text-gray-800 mb-1">Keputusan & Catatan Pengasuh</h4>
+                    <p class="text-xs text-gray-400 mb-4">Berikan pesan/balasan keputusan <span class="font-bold ${colorClass}">${labelAksi}</span> izin.</p>
+                    
+                    <input type="text" id="temp-catatan-pengasuh" placeholder="Contoh: Sudah diizinkan, hati-hati di jalan..." class="w-full border border-gray-200 rounded-xl p-2.5 text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none mb-4 bg-white text-left" />
+                    
+                    <div class="flex gap-2.5">
+                        <button onclick="document.getElementById('temp-note-overlay').remove()" class="bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold px-4 py-2.5 rounded-xl text-xs transition-colors w-1/2">
+                            Batal
+                        </button>
+                        <button id="btn-submit-pengasuh" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition-colors w-1/2 shadow-md">
+                            Kirim Keputusan
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            document.getElementById('btn-submit-pengasuh').onclick = async function() {
+                const catatanVal = document.getElementById('temp-catatan-pengasuh').value.trim();
+                overlay.remove();
+                await prosesKonfirmasiIzin(izinId, tindakan, catatanVal);
+            };
+        }
+
+        // Processing Approval/Rejection of Izin in Supabase
+        async function prosesKonfirmasiIzin(izinId, statusBaru, catatanPengasuh) {
+            const index = dataIzin.findIndex(i => i.id === izinId);
+            if (index === -1) return;
+
+            showLoadingOverlay(true);
+            try {
+                const updatedData = {
+                    status: statusBaru,
+                    catatan_pengasuh: catatanPengasuh
+                };
+
+                const { error } = await supabaseClient
+                    .from('izin')
+                    .update(updatedData)
+                    .eq('id', izinId);
+
+                if (error) throw error;
+
+                // Sync local state
+                dataIzin[index].status = statusBaru;
+                dataIzin[index].catatan_pengasuh = catatanPengasuh;
+
+                localStorage.setItem(DB_IZIN_KEY, JSON.stringify(dataIzin));
+                
+                previousIzinStates[izinId] = statusBaru;
+
+                // Trigger Local Notification for instant feedback
+                const namaSantri = dataIzin[index].santri_nama;
+                const statusLabel = statusBaru === 'Disetujui' ? 'Disetujui' : 'Ditolak';
+                sendSystemNotification("Izin Dikonfirmasi", `Izin untuk ${namaSantri} telah ${statusLabel} oleh Pengasuh.`, "info");
+
+                renderIzinGrid();
+            } catch (err) {
+                console.error("Gagal memperbarui konfirmasi izin di cloud:", err);
+                showToast("Gagal menyimpan ke server: " + (err.message || err), "error");
+            } finally {
+                showLoadingOverlay(false);
+            }
+        }
+
+        // Confirm Santri has returned back safely to Ponpes
+        async function konfirmasiKembaliPonpes(izinId) {
+            const index = dataIzin.findIndex(i => i.id === izinId);
+            if (index === -1) return;
+
+            showConfirmModal(
+                "Konfirmasi Kembali",
+                `Apakah Anda yakin ingin menyatakan bahwa ${dataIzin[index].santri_nama} sudah kembali ke Ponpes Putri 4 dengan selamat?`,
+                async () => {
+                    showLoadingOverlay(true);
+                    try {
+                        const now = new Date();
+                        const formattedTime = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+                        const formattedDate = getTodayDateString();
+
+                        const updatedData = {
+                            status: 'Selesai',
+                            tanggal_kembali: formattedDate,
+                            jam_kembali: formattedTime
+                        };
+
+                        const { error } = await supabaseClient
+                            .from('izin')
+                            .update(updatedData)
+                            .eq('id', izinId);
+
+                        if (error) throw error;
+
+                        dataIzin[index].status = 'Selesai';
+                        dataIzin[index].tanggal_kembali = formattedDate;
+                        dataIzin[index].jam_kembali = formattedTime;
+
+                        localStorage.setItem(DB_IZIN_KEY, JSON.stringify(dataIzin));
+                        
+                        previousIzinStates[izinId] = 'Selesai';
+
+                        // Trigger Local Notification for instant feedback
+                        sendSystemNotification("Santriwati Kembali", `${dataIzin[index].santri_nama} dikonfirmasi sudah masuk asrama. Berkas izin diselesaikan.`, "success");
+
+                        renderIzinGrid();
+                    } catch (err) {
+                        console.error("Gagal memperbarui kepulangan izin di cloud:", err);
+                        showToast("Gagal memperbarui ke server: " + (err.message || err), "error");
+                    } finally {
+                        showLoadingOverlay(false);
+                    }
+                },
+                "Selesai (Kembali)"
+            );
+        }
+
+        // Deletes permit log from DB
+        async function hapusCatatanIzin(izinId) {
+            showConfirmModal(
+                "Hapus Riwayat Izin",
+                "Apakah Anda yakin ingin menghapus data riwayat perizinan ini secara permanen dari server?",
+                async () => {
+                    showLoadingOverlay(true);
+                    try {
+                        const { error } = await supabaseClient.from('izin').delete().eq('id', izinId);
+                        if (error) throw error;
+
+                        const index = dataIzin.findIndex(i => i.id === izinId);
+                        if (index !== -1) {
+                            dataIzin.splice(index, 1);
+                        }
+
+                        localStorage.setItem(DB_IZIN_KEY, JSON.stringify(dataIzin));
+                        showToast("Data izin berhasil dihapus dari cloud database.", "info");
+                        renderIzinGrid();
+                    } catch (err) {
+                        console.error("Gagal menghapus riwayat izin dari cloud:", err);
+                        showToast("Gagal menghapus: " + (err.message || err), "error");
+                    } finally {
+                        showLoadingOverlay(false);
+                    }
+                }
+            );
+        }
+
+        // =========================================================================
+        // =========================================================================
 
         // ================= REKAP LOGIC =================
         function prosesRekap() {

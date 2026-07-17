@@ -635,7 +635,6 @@
                                 </div>
                                 <div>
                                     <h3 class="text-sm md:text-base font-extrabold text-gray-800 text-left">Persetujuan Pengasuh</h3>
-                                    <p class="text-[10px] text-gray-400 font-medium">Persetujuan Rahasia Ust (Ketuk 3x Cepat)</p>
                                 </div>
                             </div>
                             <!-- Filter Tabs inside panel -->

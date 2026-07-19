@@ -402,34 +402,24 @@
                 </div>
             </div>
 
-            <!-- Jurnal Presensi Tersimpan (Tabel Riwayat) -->
+            <!-- Jurnal Presensi Tersimpan (Tabel Riwayat - Folder Grouping) -->
             <div class="bg-white p-4 md:p-6 rounded-3xl border border-gray-100 shadow-sm mt-6 md:mt-8">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                     <div>
                         <h4 class="text-sm md:text-lg font-bold text-gray-800 flex items-center gap-2">
                             <i class="fa-solid fa-journal-whills text-emerald-600"></i> Berkas Presensi Tersimpan (Riwayat Cloud)
                         </h4>
-                        <p class="text-[11px] text-gray-400 mt-0.5">Daftar lembar presensi kegiatan harian yang tersinkronisasi di cloud.</p>
+                        <p class="text-[11px] text-gray-400 mt-0.5">Daftar lembar presensi kegiatan harian yang dikelompokkan rapi berdasarkan tanggal.</p>
                     </div>
                 </div>
                 
-                <div class="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-                    <table class="w-full text-left border-collapse min-w-[500px]">
-                        <thead>
-                            <tr class="border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase bg-gray-50/50">
-                                <th class="py-2.5 px-3 w-10 text-center">No</th>
-                                <th class="py-2.5 px-3">Tanggal & Sesi Kegiatan</th>
-                                <th class="py-2.5 px-3 text-center">Statistik (Hadir/Izin/Sakit/Alpa)</th>
-                                <th class="py-2.5 px-3 text-center w-36">Aksi Jurnal</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabel-riwayat-presensi" class="divide-y divide-gray-100 text-xs">
-                            <!-- Dynamic Rows -->
-                        </tbody>
-                    </table>
+                <!-- Grouped Folders Container -->
+                <div id="container-riwayat-presensi" class="space-y-3.5">
+                    <!-- Dynamic Collapsible Folders with nested tables will be injected here -->
                 </div>
-                <div id="riwayat-empty-state" class="hidden text-center py-6 text-gray-400">
-                    <i class="fa-solid fa-folder-open text-2xl mb-2 text-gray-300"></i>
+
+                <div id="riwayat-empty-state" class="hidden text-center py-10 text-gray-400">
+                    <i class="fa-solid fa-folder-open text-3xl mb-2 text-gray-300"></i>
                     <p class="text-xs">Belum ada lembar presensi harian yang tersimpan.</p>
                 </div>
             </div>
@@ -537,7 +527,7 @@
 
         <!-- ================= IZIN TAB ================= -->
         <section id="tab-izin" class="tab-content hidden">
-            <!-- Grid Layout: Form Pengajuan Keamanan & Panel Persetujuan Pengasuh -->
+            <!-- Grid Layout: Form Pengajuan Keamanan & Panel Persetujuan Pengasuh (Bebas Scroll) -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
                 <!-- Left Column: Form Keamanan (4 Cols) -->
@@ -625,41 +615,68 @@
                     </form>
                 </div>
 
-                <!-- Right Column: Panel Persetujuan Pengasuh (8 Cols) -->
-                <div class="lg:col-span-8 bg-white p-5 rounded-3xl border border-gray-100 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                            <div class="flex items-center gap-2.5 text-teal-800">
-                                <div class="p-2 bg-emerald-100 text-emerald-700 rounded-xl">
-                                    <i class="fa-solid fa-user-shield text-base"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-sm md:text-base font-extrabold text-gray-800 text-left">Persetujuan Pengasuh</h3>
-                                </div>
+                <!-- Right Column: Panel Persetujuan Pengasuh (8 Cols - Tanpa Scroll) -->
+                <div class="lg:col-span-8 space-y-6">
+                    
+                    <!-- KARTU 1: PERSIDANGAN / IZIN AKTIF -->
+                    <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm text-left">
+                        <div class="flex items-center gap-2.5 mb-4 text-emerald-800">
+                            <div class="p-2 bg-emerald-100 text-emerald-700 rounded-xl">
+                                <i class="fa-solid fa-user-shield text-base"></i>
                             </div>
-                            <!-- Filter Tabs inside panel -->
-                            <div class="flex p-0.5 bg-gray-100 rounded-lg gap-0.5 self-start sm:self-auto text-[10px] font-semibold">
-                                <button onclick="filterIzinView('SEMUA')" id="btn-filter-izin-semua" class="px-2.5 py-1 rounded-md bg-white text-gray-800 shadow-sm">Semua</button>
-                                <button onclick="filterIzinView('PENDING')" id="btn-filter-izin-pending" class="px-2.5 py-1 rounded-md text-gray-500 hover:text-gray-800">Menunggu</button>
-                                <button onclick="filterIzinView('AKTIF')" id="btn-filter-izin-aktif" class="px-2.5 py-1 rounded-md text-gray-500 hover:text-gray-800">Aktif</button>
-                                <button onclick="filterIzinView('SELESAI')" id="btn-filter-izin-selesai" class="px-2.5 py-1 rounded-md text-gray-500 hover:text-gray-800">Kembali</button>
+                            <div>
+                                <h3 class="text-sm md:text-base font-extrabold text-gray-800">Persetujuan & Izin Aktif</h3>
+                                <p class="text-[10px] text-gray-400 font-medium">Santriwati yang sedang di luar pesantren / menunggu keputusan Pengasuh</p>
                             </div>
                         </div>
 
-                        <!-- Interactive Permits Cards Grid -->
-                        <div id="grid-log-izin" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[550px] overflow-y-auto pr-1">
-                            <!-- Populated dynamically -->
+                        <!-- Grid Utama Izin Aktif (Bebas Scroll - Grid murni) -->
+                        <div id="grid-log-izin-aktif" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Populated dynamically (Menunggu Konfirmasi & Disetujui) -->
                         </div>
 
-                        <!-- Empty State for Permits -->
-                        <div id="izin-empty-state" class="hidden text-center py-12 text-gray-400">
-                            <i class="fa-solid fa-folder-open text-4xl mb-3 text-gray-300"></i>
-                            <h4 class="text-xs font-bold text-gray-700">Tidak Ada Data Izin</h4>
-                            <p class="text-[10px] text-gray-450 mt-1">Belum ada pengajuan izin keluar atau izin pulang santri saat ini.</p>
+                        <!-- Empty State for Active Permits -->
+                        <div id="izin-aktif-empty-state" class="hidden text-center py-10 text-gray-450">
+                            <i class="fa-solid fa-circle-check text-4xl mb-3 text-emerald-500/30"></i>
+                            <h4 class="text-xs font-bold text-gray-700">Semua Santriwati di Dalam Pesantren</h4>
+                            <p class="text-[10px] text-gray-400 mt-1">Tidak ada pengajuan izin tertunda atau santriwati di luar asrama saat ini.</p>
                         </div>
                     </div>
-                </div>
 
+                    <!-- KARTU 2: LACIK ARSIP DAN REKAM JEJAK (Collapsible Accordion) -->
+                    <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm text-left">
+                        <button onclick="toggleArsipIzin()" class="w-full flex items-center justify-between focus:outline-none">
+                            <div class="flex items-center gap-2.5 text-gray-800">
+                                <div class="p-2 bg-gray-100 text-gray-700 rounded-xl">
+                                    <i class="fa-solid fa-box-archive text-base"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm md:text-base font-extrabold text-gray-800">Arsip & Rekam Jejak Perizinan</h3>
+                                    <p class="text-[10px] text-gray-400 font-medium">Kumpulan riwayat keluar-masuk santriwati yang telah selesai atau ditolak</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2.5">
+                                <span id="badge-total-arsip" class="bg-gray-150 text-gray-700 font-extrabold text-[9px] md:text-[10px] px-2.5 py-1 rounded-xl">
+                                    0 Arsip
+                                </span>
+                                <i id="chevron-arsip-izin" class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-250"></i>
+                            </div>
+                        </button>
+
+                        <!-- Archived permits block (Collapsible, Bebas Scroll) -->
+                        <div id="container-arsip-izin" class="hidden mt-4 pt-4 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Populated dynamically (Selesai & Ditolak) -->
+                        </div>
+
+                        <!-- Empty State for Archived Permits -->
+                        <div id="izin-arsip-empty-state" class="hidden text-center py-10 text-gray-450">
+                            <i class="fa-solid fa-folder-open text-4xl mb-3 text-gray-300"></i>
+                            <h4 class="text-xs font-bold text-gray-750">Arsip Perizinan Masih Kosong</h4>
+                            <p class="text-[10px] text-gray-400 mt-1">Belum ada riwayat izin selesai atau ditolak.</p>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </section>
 
@@ -857,7 +874,7 @@
                     <div class="p-4 md:p-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
                             <h3 class="text-sm md:text-lg font-bold text-gray-800">Daftar Santriwati</h3>
-                            <p class="text-[11px] text-gray-400 mt-0.5">Mengelola nama dan asal alamat santriwati.</p>
+                            <p class="text-[11px] text-gray-400 mt-0.5">Mengelola nama and asal alamat santriwati.</p>
                         </div>
                         <div class="relative w-full sm:w-60">
                             <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
@@ -1043,8 +1060,8 @@
             notes: {} 
         };
 
-        // Izin module state
-        let currentIzinFilter = 'SEMUA';
+        // Arsip accordion toggle state variable
+        let arsipIzinOpen = false;
 
         // PIN Security State variables
         let appPinCode = '';
@@ -1846,12 +1863,34 @@
             renderSavedAbsensiLogs();
         }
 
-        // --- RENDERING SAVED HISTORY ON DASHBOARD ---
+        // Global memory to track open/closed folders explicitly if modified by user
+        let userFolderToggles = {};
+
+        function toggleDateFolder(dateKey) {
+            const content = document.getElementById(`content-date-${dateKey}`);
+            const chevron = document.getElementById(`chevron-date-${dateKey}`);
+            const icon = document.getElementById(`folder-icon-${dateKey}`);
+            if (!content) return;
+
+            const isHidden = content.classList.contains('hidden');
+            if (isHidden) {
+                content.classList.remove('hidden');
+                if (chevron) chevron.className = "fa-solid fa-chevron-up text-xs text-emerald-600 transition-transform duration-200";
+                if (icon) icon.className = "fa-solid fa-folder-open text-xs";
+                userFolderToggles[dateKey] = true;
+            } else {
+                content.classList.add('hidden');
+                if (chevron) chevron.className = "fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-200";
+                if (icon) icon.className = "fa-solid fa-folder-closed text-xs";
+                userFolderToggles[dateKey] = false;
+            }
+        }
+
         function renderSavedAbsensiLogs() {
-            const tbody = document.getElementById('tabel-riwayat-presensi');
+            const container = document.getElementById('container-riwayat-presensi');
             const emptyState = document.getElementById('riwayat-empty-state');
-            if (!tbody) return;
-            tbody.innerHTML = '';
+            if (!container) return;
+            container.innerHTML = '';
 
             if (dataAbsensi.length === 0) {
                 emptyState.classList.remove('hidden');
@@ -1860,92 +1899,170 @@
                 emptyState.classList.add('hidden');
             }
 
-            const sortedLogs = [...dataAbsensi].sort((a, b) => new Date(b.date) - new Date(a.date));
+            // Grouping records by Date
+            const groupsByDate = {};
+            dataAbsensi.forEach(log => {
+                if (!groupsByDate[log.date]) {
+                    groupsByDate[log.date] = [];
+                }
+                groupsByDate[log.date].push(log);
+            });
 
-            sortedLogs.forEach((log, idx) => {
-                const kegiatanObj = dataKegiatan.find(k => k.id === log.activity_id);
-                const kegiatanNama = kegiatanObj ? kegiatanObj.nama : 'Kegiatan Tidak Diketahui';
+            // Sorting Dates in Descending order (Latest Date first)
+            const sortedDates = Object.keys(groupsByDate).sort((a, b) => new Date(b) - new Date(a));
+            const todayStr = getTodayDateString();
+
+            sortedDates.forEach((dateKey) => {
+                const logsForDate = groupsByDate[dateKey];
                 
-                let h = 0, i = 0, s = 0, a = 0;
-                let listIzin = [];
-                let listSakit = [];
-                let listAlpa = [];
-
-                Object.entries(log.attendance).forEach(([santriId, status]) => {
-                    const santriObj = dataSantri.find(s => s.id === santriId);
-                    const namaSantri = santriObj ? santriObj.nama : 'Santriwati';
-
-                    if (status === 'H') {
-                        h++;
-                    } else if (status === 'I') {
-                        i++;
-                        listIzin.push(namaSantri);
-                    } else if (status === 'S') {
-                        s++;
-                        listSakit.push(namaSantri);
-                    } else if (status === 'A') {
-                        a++;
-                        listAlpa.push(namaSantri);
-                    }
-                });
-
+                // Format Header Tanggal
                 const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                const formattedDate = new Date(log.date).toLocaleDateString('id-ID', dateOptions);
+                const formattedDate = new Date(dateKey).toLocaleDateString('id-ID', dateOptions);
+                const isToday = dateKey === todayStr;
 
-                let rincianTidakHadir = '';
-                if (listIzin.length > 0 || listSakit.length > 0 || listAlpa.length > 0) {
-                    rincianTidakHadir += `<div class="mt-2 p-2 bg-gray-50 rounded-xl border border-gray-100 text-[10px] space-y-1">`;
-                    if (listIzin.length > 0) {
-                        rincianTidakHadir += `<div class="text-blue-700 flex flex-wrap gap-1 text-left"><span class="font-bold"><i class="fa-solid fa-plane-departure mr-1 text-[9px]"></i>Izin:</span> <span>${listIzin.join(', ')}</span></div>`;
-                    }
-                    if (listSakit.length > 0) {
-                        rincianTidakHadir += `<div class="text-amber-700 flex flex-wrap gap-1 text-left"><span class="font-bold"><i class="fa-solid fa-briefcase-medical mr-1 text-[9px]"></i>Sakit:</span> <span>${listSakit.join(', ')}</span></div>`;
-                    }
-                    if (listAlpa.length > 0) {
-                        rincianTidakHadir += `<div class="text-rose-700 flex flex-wrap gap-1 text-left"><span class="font-bold"><i class="fa-solid fa-circle-exclamation mr-1 text-[9px]"></i>Alpa:</span> <span>${listAlpa.join(', ')}</span></div>`;
-                    }
-                    rincianTidakHadir += `</div>`;
-                } else {
-                    rincianTidakHadir = `<div class="mt-1.5 text-[10px] text-emerald-600 font-semibold flex items-center gap-1"><i class="fa-solid fa-circle-check text-[9px]"></i> Semua santriwati hadir lengkap</div>`;
+                // Determine open state:
+                // If user already clicked to close/open it, use that value. Otherwise, default 'Today' is open, others closed.
+                let isOpen = isToday;
+                if (userFolderToggles[dateKey] !== undefined) {
+                    isOpen = userFolderToggles[dateKey];
                 }
 
-                tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50/80 transition-colors">
-                        <td class="py-3 px-3 text-center font-bold text-gray-400 align-top">${idx + 1}</td>
-                        <td class="py-3 px-3 align-top">
-                            <div class="flex flex-col">
-                                <span class="font-bold text-gray-800 text-xs text-left">${kegiatanNama}</span>
-                                <span class="text-[10px] text-gray-455 mt-0.5 text-left"><i class="fa-solid fa-calendar-alt text-emerald-600 mr-1 text-[10px]"></i> ${formattedDate}</span>
-                                ${rincianTidakHadir}
-                            </div>
-                        </td>
-                        <td class="py-3 px-3 text-center align-top">
-                            <div class="flex flex-col gap-1 items-center justify-center">
-                                <div class="flex flex-wrap gap-1 justify-center">
-                                    <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold text-[9px] border border-emerald-100">${h} Hadir</span>
-                                    <span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-bold text-[9px] border border-blue-100">${i} Izin</span>
+                const contentId = `content-date-${dateKey}`;
+                const chevronId = `chevron-date-${dateKey}`;
+                const iconId = `folder-icon-${dateKey}`;
+
+                const displayStyle = isOpen ? 'block' : 'hidden';
+                const chevronClass = isOpen ? 'fa-chevron-up text-emerald-600' : 'fa-chevron-down text-gray-400';
+                const folderIconClass = isOpen ? 'fa-folder-open' : 'fa-folder-closed';
+
+                // Render Folder Card Layout
+                let folderHtml = `
+                    <div class="border border-gray-200/85 rounded-2xl overflow-hidden shadow-sm bg-white transition-all duration-300">
+                        <!-- Folder Trigger Button -->
+                        <button onclick="toggleDateFolder('${dateKey}')" class="w-full flex items-center justify-between p-3.5 bg-gray-55 hover:bg-emerald-50/40 transition-colors text-left focus:outline-none">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                                    <i id="${iconId}" class="fa-solid ${folderIconClass} text-xs"></i>
                                 </div>
-                                <div class="flex flex-wrap gap-1 justify-center">
-                                    <span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-bold text-[9px] border border-amber-100">${s} Sakit</span>
-                                    <span class="px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 font-bold text-[9px] border border-rose-100">${a} Alpa</span>
+                                <div>
+                                    <span class="font-bold text-xs md:text-sm text-gray-800">${formattedDate}</span>
+                                    ${isToday ? `<span class="ml-2 bg-emerald-600 text-white font-extrabold text-[8px] md:text-[9px] px-2 py-0.5 rounded-full uppercase tracking-widest shadow-sm">Hari Ini</span>` : ''}
                                 </div>
                             </div>
-                        </td>
-                        <td class="py-3 px-3 text-center align-top">
-                            <div class="inline-flex gap-1">
-                                <button onclick="detailSesiAbsen('${log.date}', '${log.activity_id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 px-2 py-1 rounded-xl font-bold text-[10px] transition-colors" title="Lihat Keterangan Rinci">
-                                    <i class="fa-solid fa-eye mr-0.5"></i> Detail
-                                </button>
-                                <button onclick="bukaDanEditAbsen('${log.date}', '${log.activity_id}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2 py-1 rounded-xl font-bold text-[10px] transition-colors">
-                                    <i class="fa-solid fa-pencil-alt mr-0.5"></i> Edit
-                                </button>
-                                <button onclick="hapusSesiAbsen('${log.date}', '${log.activity_id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 p-1.5 rounded-xl transition-colors" title="Hapus Permanen">
-                                    <i class="fa-solid fa-trash-can text-[10px]"></i>
-                                </button>
+                            <div class="flex items-center gap-2.5">
+                                <span class="bg-gray-200/80 text-gray-700 font-extrabold text-[9px] md:text-[10px] px-2.5 py-1 rounded-xl">
+                                    ${logsForDate.length} Sesi Absen
+                                </span>
+                                <i id="${chevronId}" class="fa-solid ${chevronClass} text-xs transition-transform duration-200"></i>
                             </div>
-                        </td>
-                    </tr>
+                        </button>
+                        
+                        <!-- Collapsible Body Container -->
+                        <div id="${contentId}" class="${displayStyle} border-t border-gray-100 p-2.5 md:p-4 bg-white overflow-x-auto">
+                            <table class="w-full text-left border-collapse min-w-[500px]">
+                                <thead>
+                                    <tr class="border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase bg-gray-50/30">
+                                        <th class="py-2.5 px-3 w-10 text-center">No</th>
+                                        <th class="py-2.5 px-3">Sesi Kegiatan</th>
+                                        <th class="py-2.5 px-3 text-center">Statistik (Hadir/Izin/Sakit/Alpa)</th>
+                                        <th class="py-2.5 px-3 text-center w-36">Aksi Jurnal</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 text-xs">
                 `;
+
+                // Render Table Rows Inside the Folder
+                logsForDate.forEach((log, idx) => {
+                    const kegiatanObj = dataKegiatan.find(k => k.id === log.activity_id);
+                    const kegiatanNama = kegiatanObj ? kegiatanObj.nama : 'Kegiatan Tidak Diketahui';
+                    
+                    let h = 0, i = 0, s = 0, a = 0;
+                    let listIzin = [];
+                    let listSakit = [];
+                    let listAlpa = [];
+
+                    Object.entries(log.attendance).forEach(([santriId, status]) => {
+                        const santriObj = dataSantri.find(s => s.id === santriId);
+                        const namaSantri = santriObj ? santriObj.nama : 'Santriwati';
+
+                        if (status === 'H') {
+                            h++;
+                        } else if (status === 'I') {
+                            i++;
+                            listIzin.push(namaSantri);
+                        } else if (status === 'S') {
+                            s++;
+                            listSakit.push(namaSantri);
+                        } else if (status === 'A') {
+                            a++;
+                            listAlpa.push(namaSantri);
+                        }
+                    });
+
+                    let rincianTidakHadir = '';
+                    if (listIzin.length > 0 || listSakit.length > 0 || listAlpa.length > 0) {
+                        rincianTidakHadir += `<div class="mt-2 p-2 bg-gray-50 rounded-xl border border-gray-100 text-[10px] space-y-1">`;
+                        if (listIzin.length > 0) {
+                            rincianTidakHadir += `<div class="text-blue-700 flex flex-wrap gap-1 text-left"><span class="font-bold"><i class="fa-solid fa-plane-departure mr-1 text-[9px]"></i>Izin:</span> <span>${listIzin.join(', ')}</span></div>`;
+                        }
+                        if (listSakit.length > 0) {
+                            rincianTidakHadir += `<div class="text-amber-700 flex flex-wrap gap-1 text-left"><span class="font-bold"><i class="fa-solid fa-briefcase-medical mr-1 text-[9px]"></i>Sakit:</span> <span>${listSakit.join(', ')}</span></div>`;
+                        }
+                        if (listAlpa.length > 0) {
+                            rincianTidakHadir += `<div class="text-rose-700 flex flex-wrap gap-1 text-left"><span class="font-bold"><i class="fa-solid fa-circle-exclamation mr-1 text-[9px]"></i>Alpa:</span> <span>${listAlpa.join(', ')}</span></div>`;
+                        }
+                        rincianTidakHadir += `</div>`;
+                    } else {
+                        rincianTidakHadir = `<div class="mt-1.5 text-[10px] text-emerald-600 font-semibold flex items-center gap-1"><i class="fa-solid fa-circle-check text-[9px]"></i> Semua santriwati hadir lengkap</div>`;
+                    }
+
+                    folderHtml += `
+                        <tr class="hover:bg-gray-50/80 transition-colors">
+                            <td class="py-3 px-3 text-center font-bold text-gray-400 align-top">${idx + 1}</td>
+                            <td class="py-3 px-3 align-top">
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-gray-800 text-xs text-left">${kegiatanNama}</span>
+                                    ${rincianTidakHadir}
+                                </div>
+                            </td>
+                            <td class="py-3 px-3 text-center align-top">
+                                <div class="flex flex-col gap-1 items-center justify-center">
+                                    <div class="flex flex-wrap gap-1 justify-center">
+                                        <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold text-[9px] border border-emerald-100">${h} Hadir</span>
+                                        <span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-bold text-[9px] border border-blue-100">${i} Izin</span>
+                                    </div>
+                                    <div class="flex flex-wrap gap-1 justify-center">
+                                        <span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-bold text-[9px] border border-amber-100">${s} Sakit</span>
+                                        <span class="px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 font-bold text-[9px] border border-rose-100">${a} Alpa</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-3 px-3 text-center align-top">
+                                <div class="inline-flex gap-1">
+                                    <button onclick="detailSesiAbsen('${log.date}', '${log.activity_id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 px-2.5 py-1 rounded-xl font-bold text-[10px] transition-colors" title="Lihat Keterangan Rinci">
+                                        <i class="fa-solid fa-eye mr-0.5"></i> Detail
+                                    </button>
+                                    <button onclick="bukaDanEditAbsen('${log.date}', '${log.activity_id}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-xl font-bold text-[10px] transition-colors">
+                                        <i class="fa-solid fa-pencil-alt mr-0.5"></i> Edit
+                                    </button>
+                                    <button onclick="hapusSesiAbsen('${log.date}', '${log.activity_id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 p-1.5 rounded-xl transition-colors" title="Hapus Permanen">
+                                        <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                // Close structure
+                folderHtml += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+
+                container.innerHTML += folderHtml;
             });
         }
 
@@ -2662,30 +2779,60 @@
             }
         }
 
-        function filterIzinView(statusFilter) {
-            currentIzinFilter = statusFilter;
-            
-            const buttons = {
-                'SEMUA': 'btn-filter-izin-semua',
-                'PENDING': 'btn-filter-izin-pending',
-                'AKTIF': 'btn-filter-izin-aktif',
-                'SELESAI': 'btn-filter-izin-selesai'
-            };
+        // TOGGLE LACIK ARSIP/HISTORY ACCORDION
+        function toggleArsipIzin() {
+            const container = document.getElementById('container-arsip-izin');
+            const chevron = document.getElementById('chevron-arsip-izin');
+            if (!container) return;
 
-            Object.entries(buttons).forEach(([key, btnId]) => {
-                const el = document.getElementById(btnId);
-                if (!el) return;
-                if (key === statusFilter) {
-                    el.className = "px-2.5 py-1 rounded-md bg-white text-gray-800 shadow-sm";
-                } else {
-                    el.className = "px-2.5 py-1 rounded-md text-gray-500 hover:text-gray-800";
+            arsipIzinOpen = !arsipIzinOpen;
+            if (arsipIzinOpen) {
+                container.classList.remove('hidden');
+                container.classList.add('grid');
+                if (chevron) chevron.className = "fa-solid fa-chevron-up text-xs text-emerald-600 transition-transform duration-250";
+            } else {
+                container.classList.add('hidden');
+                container.classList.remove('grid');
+                if (chevron) chevron.className = "fa-solid fa-chevron-down text-xs text-gray-450 transition-transform duration-250";
+            }
+        }
+
+        // TEMPLATE ULANG PENGALAMAN IZIN SANTRI (CLONING DATA UNTUK AJUKAN LAGI)
+        function templateIzinUlang(izinId) {
+            const item = dataIzin.find(i => i.id === izinId);
+            if (!item) return;
+
+            // Auto fill Left Form fields
+            const selectSantri = document.getElementById('izin-santri-id');
+            if (selectSantri) selectSantri.value = item.santri_id;
+
+            // Set radio button tipe
+            const radios = document.getElementsByName('izin-tipe');
+            radios.forEach(radio => {
+                if (radio.value === item.tipe) {
+                    radio.checked = true;
                 }
             });
 
-            renderIzinGrid();
+            const keperluanInput = document.getElementById('izin-keperluan');
+            if (keperluanInput) keperluanInput.value = item.keperluan;
+
+            const estimasiInput = document.getElementById('izin-estimasi');
+            if (estimasiInput) estimasiInput.value = item.estimasi_kembali;
+
+            const catatanInput = document.getElementById('izin-catatan-keamanan');
+            if (catatanInput) catatanInput.value = item.catatan_keamanan || '';
+
+            showToast(`Formulir berhasil diisi otomatis menggunakan rekam jejak ${item.santri_nama}!`, "info");
+
+            // Scroll form into view with styling focus
+            const form = document.getElementById('form-pengajuan-izin');
+            if (form) {
+                form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
 
-        // IMPLEMENTASI GESTUR KETUK RAHASIA 3X PENGASUH UNTUK PERSETUJUAN (Silent & Instan Tanpa Hitungan/Pemberitahuan Sela)
+        // IMPLEMENTASI GESTUR KETUK RAHASIA 3X PENGASUH UNTUK PERSETUJUAN
         function triggerSecretApproval(id, btnElement) {
             const now = Date.now();
             
@@ -2698,7 +2845,6 @@
 
             const tracker = approvalGestureTracker[id];
 
-            // Cek jika ketukan terlalu lambat (lebih dari 1.5 detik), reset hitungan ke 0
             if (now - tracker.lastTap > 1500) {
                 tracker.count = 0;
             }
@@ -2706,62 +2852,81 @@
             tracker.count++;
             tracker.lastTap = now;
 
-            // Jika sudah berhasil mengetuk cepat sebanyak 3 kali berturut-turut
             if (tracker.count === 3) {
-                tracker.count = 0; // Reset pelacak ketukan
+                tracker.count = 0; 
                 
-                // Berikan visual feedback instan bahwa akses terbuka
                 btnElement.innerHTML = `<i class="fa-solid fa-circle-check"></i> Terbuka!`;
                 btnElement.className = "bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm";
                 
                 playNotificationChime();
                 showToast("Akses Terverifikasi! Membuka kunci persetujuan pengasuh.", "success");
                 
-                // Buka modal untuk memberikan keputusan / catatan pengasuh
                 jawabIzinModal(id, 'Disetujui');
             }
         }
 
         function renderIzinGrid() {
-            const grid = document.getElementById('grid-log-izin');
-            const emptyState = document.getElementById('izin-empty-state');
-            if (!grid) return;
+            const gridAktif = document.getElementById('grid-log-izin-aktif');
+            const emptyAktif = document.getElementById('izin-aktif-empty-state');
+            const gridArsip = document.getElementById('container-arsip-izin');
+            const emptyArsip = document.getElementById('izin-arsip-empty-state');
+            const badgeArsip = document.getElementById('badge-total-arsip');
+
+            if (!gridAktif || !gridArsip) return;
             
-            grid.innerHTML = '';
+            gridAktif.innerHTML = '';
+            gridArsip.innerHTML = '';
 
-            let filtered = [...dataIzin].sort((a, b) => b.id.localeCompare(a.id)); 
+            let sorted = [...dataIzin].sort((a, b) => b.id.localeCompare(a.id)); 
 
-            if (currentIzinFilter === 'PENDING') {
-                filtered = filtered.filter(i => i.status === 'Menunggu Konfirmasi');
-            } else if (currentIzinFilter === 'AKTIF') {
-                filtered = filtered.filter(i => i.status === 'Disetujui');
-            } else if (currentIzinFilter === 'SELESAI') {
-                filtered = filtered.filter(i => i.status === 'Selesai' || i.status === 'Ditolak');
-            }
+            let countAktif = 0;
+            let countArsip = 0;
 
-            if (filtered.length === 0) {
-                emptyState.classList.remove('hidden');
-                return;
-            } else {
-                emptyState.classList.add('hidden');
-            }
-
-            filtered.forEach(item => {
+            sorted.forEach(item => {
                 let statusBadge = '';
-                let borderClass = 'border-gray-100';
+                let borderClass = 'border-gray-200';
                 
                 if (item.status === 'Menunggu Konfirmasi') {
                     statusBadge = `<span class="bg-amber-100 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full text-[9px] font-bold"><i class="fa-solid fa-hourglass-start animate-pulse mr-1"></i>Belum Disetujui Ust</span>`;
-                    borderClass = 'border-amber-200 bg-amber-50/10';
+                    borderClass = 'border-amber-250 bg-amber-50/10';
                 } else if (item.status === 'Disetujui') {
                     statusBadge = `<span class="bg-emerald-100 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-full text-[9px] font-bold"><i class="fa-solid fa-circle-check mr-1"></i>Sudah Disetujui Ust</span>`;
-                    borderClass = 'border-emerald-200 bg-emerald-50/10';
+                    borderClass = 'border-emerald-250 bg-emerald-50/10';
                 } else if (item.status === 'Ditolak') {
                     statusBadge = `<span class="bg-rose-100 text-rose-800 border border-rose-200 px-2 py-0.5 rounded-full text-[9px] font-bold"><i class="fa-solid fa-ban mr-1"></i>Ditolak Ust</span>`;
-                    borderClass = 'border-rose-100 bg-rose-50/5';
+                    borderClass = 'border-rose-200 bg-rose-50/5';
                 } else if (item.status === 'Selesai') {
                     statusBadge = `<span class="bg-blue-100 text-blue-800 border border-blue-200 px-2 py-0.5 rounded-full text-[9px] font-bold"><i class="fa-solid fa-arrow-left-long mr-1"></i>Sudah Kembali</span>`;
-                    borderClass = 'border-gray-200';
+                    borderClass = 'border-gray-250 bg-gray-50/40';
+                }
+
+                // Create Action Buttons adaptively
+                let actionButtons = '';
+                if (item.status === 'Menunggu Konfirmasi') {
+                    actionButtons = `
+                        <button onclick="jawabIzinModal('${item.id}', 'Ditolak')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold px-3 py-1.5 rounded-lg transition-colors text-[10px]">
+                            <i class="fa-solid fa-ban"></i> Tolak
+                        </button>
+                        <button id="btn-approve-${item.id}" onclick="triggerSecretApproval('${item.id}', this)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm text-[10px]">
+                            <i class="fa-solid fa-check"></i> Izinkan (Setujui)
+                        </button>
+                    `;
+                } else if (item.status === 'Disetujui') {
+                    actionButtons = `
+                        <button onclick="konfirmasiKembaliPonpes('${item.id}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-2 rounded-xl transition-all shadow-sm text-center text-[10px]">
+                            <i class="fa-solid fa-arrow-left-long mr-1"></i> Konfirmasi Kembali (Selesai)
+                        </button>
+                    `;
+                } else {
+                    // Selesai / Ditolak (Arsip)
+                    actionButtons = `
+                        <button onclick="templateIzinUlang('${item.id}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 text-[10px]" title="Gunakan data ini untuk mengajukan izin baru">
+                            <i class="fa-solid fa-rotate-right text-[10px]"></i> Ajukan Lagi
+                        </button>
+                        <button onclick="hapusCatatanIzin('${item.id}')" class="text-rose-600 hover:text-rose-800 hover:bg-rose-50 p-1.5 rounded-lg transition-colors ml-auto" title="Hapus Riwayat Izin">
+                            <i class="fa-solid fa-trash-can text-xs"></i>
+                        </button>
+                    `;
                 }
 
                 const cardHtml = `
@@ -2783,8 +2948,8 @@
                             </div>
 
                             <div class="space-y-1 text-left bg-gray-50 p-2.5 rounded-xl border border-gray-100/70 mb-3 text-[11px]">
-                                <p class="text-gray-600"><span class="font-bold text-gray-800">Keperluan:</span> ${item.keperluan}</p>
-                                <p class="text-gray-600"><span class="font-bold text-gray-800">Est. Kembali:</span> ${item.estimasi_kembali}</p>
+                                <p class="text-gray-650"><span class="font-bold text-gray-800">Keperluan:</span> ${item.keperluan}</p>
+                                <p class="text-gray-650"><span class="font-bold text-gray-800">Est. Kembali:</span> ${item.estimasi_kembali}</p>
                                 <p class="text-gray-400 text-[10px] mt-1"><i class="fa-solid fa-clock"></i> Keluar: ${item.tanggal_keluar} • ${item.jam_keluar}</p>
                                 ${item.catatan_keamanan ? `<p class="text-[10px] text-teal-800 bg-teal-50 px-1.5 py-0.5 rounded mt-1.5 border border-teal-100"><i class="fa-solid fa-quote-left text-[8px] mr-1"></i>${item.catatan_keamanan}</p>` : ''}
                                 
@@ -2800,31 +2965,35 @@
                         </div>
 
                         <div class="flex flex-wrap gap-1.5 justify-end mt-2 pt-2.5 border-t border-gray-100">
-                            ${item.status === 'Menunggu Konfirmasi' ? `
-                                <button onclick="jawabIzinModal('${item.id}', 'Ditolak')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold px-3 py-1.5 rounded-lg transition-colors">
-                                    <i class="fa-solid fa-ban"></i> Tolak
-                                </button>
-                                <button id="btn-approve-${item.id}" onclick="triggerSecretApproval('${item.id}', this)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm">
-                                    <i class="fa-solid fa-check"></i> Izinkan (Setujui)
-                                </button>
-                            ` : ''}
-
-                            ${item.status === 'Disetujui' ? `
-                                <button onclick="konfirmasiKembaliPonpes('${item.id}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-2 rounded-xl transition-all shadow-sm text-center">
-                                    <i class="fa-solid fa-arrow-left-long mr-1"></i> Konfirmasi Kembali (Selesai)
-                                </button>
-                            ` : ''}
-
-                            ${item.status === 'Selesai' || item.status === 'Ditolak' ? `
-                                <button onclick="hapusCatatanIzin('${item.id}')" class="text-rose-600 hover:text-rose-800 hover:bg-rose-50 p-1.5 rounded-lg transition-colors ml-auto" title="Hapus Riwayat Izin">
-                                    <i class="fa-solid fa-trash-can text-xs"></i>
-                                </button>
-                            ` : ''}
+                            ${actionButtons}
                         </div>
                     </div>
                 `;
-                grid.innerHTML += cardHtml;
+
+                // Split routing based on active status
+                if (item.status === 'Menunggu Konfirmasi' || item.status === 'Disetujui') {
+                    gridAktif.innerHTML += cardHtml;
+                    countAktif++;
+                } else {
+                    gridArsip.innerHTML += cardHtml;
+                    countArsip++;
+                }
             });
+
+            // Update badges and toggle empty states
+            if (badgeArsip) badgeArsip.innerText = `${countArsip} Arsip`;
+
+            if (countAktif === 0) {
+                emptyAktif.classList.remove('hidden');
+            } else {
+                emptyAktif.classList.add('hidden');
+            }
+
+            if (countArsip === 0) {
+                emptyArsip.classList.remove('hidden');
+            } else {
+                emptyArsip.classList.add('hidden');
+            }
         }
 
         function jawabIzinModal(izinId, tindakan) {

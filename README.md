@@ -630,7 +630,7 @@
                                 <i class="fa-solid fa-user-shield text-base"></i>
                             </div>
                             <div>
-                                <h3 class="text-sm md:text-base font-extrabold text-gray-800">Persetujuan & Izin Aktif</h3>
+                                <h3 class="text-sm md:text-base font-extrabold text-gray-800">Persetujuan & Izin Hack / Aktif</h3>
                                 <p class="text-[10px] text-gray-400 font-medium">Santriwati yang sedang di luar pesantren / menunggu keputusan Pengasuh</p>
                             </div>
                         </div>
@@ -885,7 +885,7 @@
                             <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
                                 <i class="fa-solid fa-magnifying-glass text-xs"></i>
                             </span>
-                            <input type="text" id="search-santri" oninput="renderSantriList()" placeholder="Cari nama santriwati..." class="pl-8 w-full rounded-xl border border-gray-200 py-2 px-3 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500" />
+                            <input type="text" id="search-search-santri" oninput="renderSantriList()" placeholder="Cari nama santriwati..." class="pl-8 w-full rounded-xl border border-gray-200 py-2 px-3 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500" />
                         </div>
                     </div>
 
@@ -1047,6 +1047,19 @@
             }
         })();
 
+        // Pendaftaran otomatis Service Worker sw.js agar ikon muncul di baris status atas HP Android
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => {
+                        console.log('Status Bar Service Worker berhasil terdaftar:', reg);
+                    })
+                    .catch(err => {
+                        console.warn('Gagal mendaftarkan Service Worker, menggunakan sistem fallback in-app banner:', err);
+                    });
+            });
+        }
+
         // Initialize Supabase Client
         const SUPABASE_URL = 'https://ogbvyeypznbwurmsmwld.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9nYnZ5ZXlwem5id3VybXNtd2xkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3OTM1MzgsImV4cCI6MjA5NzM2OTUzOH0.LSO8qrGBs85lkSD5mzVL7zOBO5LTHJX90v7Q-FJEYQo';
@@ -1174,30 +1187,30 @@
                 }
             }
 
-            // TRIGGER HEADS-UP BANNER DI ATAS LAYAR HP (DEKAT JAM)
-            // Hanya dipicu jika aplikasi sedang tidak fokus/sedang ditutup sementara (di latar belakang)
+            // TRIGGER SYSTEM NOTIFICATION DI ATAS LAYAR HP (STATUS BAR)
+            // Menggunakan Service Worker agar tampil di status bar
             if (window.Notification && Notification.permission === "granted") {
-                try {
-                    const notificationOptions = {
-                        body: body,
-                        icon: "ChatGPT Image 16 Jul 2026, 22.21.31.png",
-                        badge: "ChatGPT Image 16 Jul 2026, 22.21.31.png",
-                        tag: "hq-security-alert",
-                        renotify: true, // Paksa layar HP menyala dan bergetar kembali jika ada update baru
-                        silent: false,  // Pastikan bersuara secara native di sistem HP
-                        vibrate: [150, 100, 150],
-                        dir: "auto"
-                    };
-                    
-                    const notification = new Notification(`HQ Putri 4: ${title}`, notificationOptions);
-                    
-                    // Klik notifikasi untuk langsung membuka/mengarahkan kembali ke aplikasi
-                    notification.onclick = function() {
-                        window.focus();
-                        this.close();
-                    };
-                } catch (e) {
-                    console.warn("Gagal mengirim via System Notification API", e);
+                const notificationOptions = {
+                    body: body,
+                    icon: "ChatGPT Image 16 Jul 2026, 22.21.31.png", // Logo pesantren sebagai foto profil notif
+                    badge: "ChatGPT Image 16 Jul 2026, 22.21.31.png", // Logo pesantren muncul monochrome di status bar atas
+                    tag: "hq-security-alert",
+                    renotify: true, // Paksa HP bergetar kembali jika ada update baru
+                    silent: true,  // Suara dihandle manual oleh playNotificationChime() agar sinkron
+                    vibrate: [150, 100, 150],
+                    data: { url: window.location.href }
+                };
+
+                if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.ready.then(registration => {
+                        registration.showNotification(`HQ Putri 4: ${title}`, notificationOptions);
+                    }).catch(err => {
+                        // Fallback jika Service Worker sibuk / bermasalah
+                        new Notification(`HQ Putri 4: ${title}`, notificationOptions);
+                    });
+                } else {
+                    // Fallback normal browser jika sw.js belum diaktifkan penuh
+                    new Notification(`HQ Putri 4: ${title}`, notificationOptions);
                 }
             }
 
@@ -2262,7 +2275,7 @@
         // ================= SANTRI LOGIC =================
         function renderSantriList() {
             const tableBody = document.getElementById('tabel-daftar-santri');
-            const searchKeyword = document.getElementById('search-santri').value.toLowerCase();
+            const searchKeyword = document.getElementById('search-search-santri').value.toLowerCase();
             const emptyTable = document.getElementById('santri-empty-table');
             if (!tableBody) return;
             
@@ -2847,7 +2860,7 @@
             } else {
                 container.classList.add('hidden');
                 container.classList.remove('grid');
-                if (chevron) chevron.className = "fa-solid fa-chevron-down text-xs text-gray-450 transition-transform duration-250";
+                if (chevron) chevron.className = "fa-solid fa-chevron-down text-xs text-gray-455 transition-transform duration-250";
             }
         }
 

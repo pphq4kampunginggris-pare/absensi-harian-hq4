@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Absensi & Izin Santri - PP. Hamalatul Qur'an Putri 4</title>
     
+    <!-- PWA Primary Customization Metas for Mobile Status Bar Styling -->
+    <meta name="theme-color" content="#065f46">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <!-- Favicon Integration using official institute logo -->
     <link rel="icon" type="image/png" href="ChatGPT Image 16 Jul 2026, 22.21.31.png">
     <link rel="apple-touch-icon" href="ChatGPT Image 16 Jul 2026, 22.21.31.png">
@@ -1004,6 +1009,44 @@
         const DB_PIN_KEY = 'hq_putri4_secure_pin';
         const DB_IZIN_KEY = 'hq_putri4_izin';
 
+        // DYNAMIC WEB MANIFEST GENERATION FOR PWA INSTALLATION SUPPORT
+        (function() {
+            try {
+                const manifest = {
+                    "name": "E-Presensi & Izin HQ Putri 4",
+                    "short_name": "Presensi HQ4",
+                    "description": "Sistem Informasi Absensi & Keamanan Santri PP. Hamalatul Qur'an Putri 4 Al-Karima Kediri",
+                    "start_url": "./index.html",
+                    "display": "standalone",
+                    "background_color": "#064e3b",
+                    "theme_color": "#065f46",
+                    "orientation": "portrait",
+                    "icons": [
+                        {
+                            "src": "ChatGPT Image 16 Jul 2026, 22.21.31.png",
+                            "sizes": "192x192",
+                            "type": "image/png",
+                            "purpose": "any maskable"
+                        },
+                        {
+                            "src": "ChatGPT Image 16 Jul 2026, 22.21.31.png",
+                            "sizes": "512x512",
+                            "type": "image/png"
+                        }
+                    ]
+                };
+                const manifestStr = JSON.stringify(manifest);
+                const blob = new Blob([manifestStr], {type: 'application/json'});
+                const manifestURL = URL.createObjectURL(blob);
+                const link = document.createElement('link');
+                link.rel = 'manifest';
+                link.href = manifestURL;
+                document.head.appendChild(link);
+            } catch (err) {
+                console.error("Gagal membuat manifest PWA dinamis:", err);
+            }
+        })();
+
         // Initialize Supabase Client
         const SUPABASE_URL = 'https://ogbvyeypznbwurmsmwld.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9nYnZ5ZXlwem5id3VybXNtd2xkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3OTM1MzgsImV4cCI6MjA5NzM2OTUzOH0.LSO8qrGBs85lkSD5mzVL7zOBO5LTHJX90v7Q-FJEYQo';
@@ -1077,27 +1120,7 @@
         let backdoorClickCount = 0;
         let backdoorClickTimeout;
 
-        // --- WINDOW LOAD INITIALIZATION ---
-        window.onload = async function() {
-            initSecurityLock();
-            await loadDatabase();
-            
-            updateClock();
-            setInterval(updateClock, 1000);
-
-            fetchPrayerTimes();
-
-            document.getElementById('absensi-tanggal').value = getTodayDateString();
-            document.addEventListener('keydown', handlePhysicalKeyboard);
-
-            // Establish real-time safe HTTP polling
-            setupSafePollingSync();
-
-            // Check and update notification bell status on load
-            checkNotificationPermissionStatus();
-        }
-
-        // --- SINKRONISASI SUARA NOTIFIKASI NYATA (SINTESIS NYATA) ---
+        // --- SINKRONISASI SUARA NOTIFIKASI NYATA (WA-STYLE DOUBLE CHIME) ---
         function playNotificationChime() {
             try {
                 const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -1105,29 +1128,33 @@
                 const ctx = new AudioCtx();
                 const now = ctx.currentTime;
                 
+                // Nada Pertama (Tinggi)
                 const osc1 = ctx.createOscillator();
-                const osc2 = ctx.createOscillator();
-                const gain = ctx.createGain();
-                
+                const gain1 = ctx.createGain();
                 osc1.type = 'sine';
-                osc1.frequency.setValueAtTime(659.25, now); // E5
-                osc1.frequency.exponentialRampToValueAtTime(1046.50, now + 0.12); // C6
-                
-                osc2.type = 'triangle';
-                osc2.frequency.setValueAtTime(523.25, now); // C5
-                osc2.frequency.exponentialRampToValueAtTime(1318.51, now + 0.15); // E6
-                
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
-                
-                osc1.connect(gain);
-                osc2.connect(gain);
-                gain.connect(ctx.destination);
-                
+                osc1.frequency.setValueAtTime(880, now); // A5
+                osc1.frequency.exponentialRampToValueAtTime(1320, now + 0.1); // E6
+                gain1.gain.setValueAtTime(0.2, now);
+                gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                osc1.connect(gain1);
+                gain1.connect(ctx.destination);
                 osc1.start(now);
-                osc2.start(now);
-                osc1.stop(now + 0.5);
-                osc2.stop(now + 0.5);
+                osc1.stop(now + 0.25);
+                
+                // Nada Kedua (WA Style Pop - Jeda 120ms)
+                const delay = 0.12;
+                const osc2 = ctx.createOscillator();
+                const gain2 = ctx.createGain();
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(1046.50, now + delay); // C6
+                osc2.frequency.exponentialRampToValueAtTime(1567.98, now + delay + 0.15); // G6
+                gain2.gain.setValueAtTime(0.25, now + delay);
+                gain2.gain.exponentialRampToValueAtTime(0.01, now + delay + 0.3);
+                osc2.connect(gain2);
+                gain2.connect(ctx.destination);
+                osc2.start(now + delay);
+                osc2.stop(now + delay + 0.3);
+                
             } catch (err) {
                 console.warn("AudioContext diblokir interaksi browser:", err);
             }
@@ -1135,19 +1162,46 @@
 
         // --- SISTEM NOTIFIKASI SISTEM DAN DESAIN MOBILE IN-APP SLIDEDOWN BANNER ---
         function sendSystemNotification(title, body, type = 'success') {
+            // Bunyikan nada notifikasi WA-Style yang nyaring
             playNotificationChime();
 
+            // Berikan efek getar pada HP (Getar-Jeda-Getar, khas pesan masuk)
+            if (window.navigator && window.navigator.vibrate) {
+                try {
+                    window.navigator.vibrate([150, 100, 150]);
+                } catch (e) {
+                    console.debug("Izin getar diblokir sistem operasi.");
+                }
+            }
+
+            // TRIGGER HEADS-UP BANNER DI ATAS LAYAR HP (DEKAT JAM)
+            // Hanya dipicu jika aplikasi sedang tidak fokus/sedang ditutup sementara (di latar belakang)
             if (window.Notification && Notification.permission === "granted") {
                 try {
-                    new Notification(`HQ Putri 4: ${title}`, {
+                    const notificationOptions = {
                         body: body,
-                        icon: "ChatGPT Image 16 Jul 2026, 22.21.31.png"
-                    });
+                        icon: "ChatGPT Image 16 Jul 2026, 22.21.31.png",
+                        badge: "ChatGPT Image 16 Jul 2026, 22.21.31.png",
+                        tag: "hq-security-alert",
+                        renotify: true, // Paksa layar HP menyala dan bergetar kembali jika ada update baru
+                        silent: false,  // Pastikan bersuara secara native di sistem HP
+                        vibrate: [150, 100, 150],
+                        dir: "auto"
+                    };
+                    
+                    const notification = new Notification(`HQ Putri 4: ${title}`, notificationOptions);
+                    
+                    // Klik notifikasi untuk langsung membuka/mengarahkan kembali ke aplikasi
+                    notification.onclick = function() {
+                        window.focus();
+                        this.close();
+                    };
                 } catch (e) {
                     console.warn("Gagal mengirim via System Notification API", e);
                 }
             }
 
+            // Tampilkan juga spanduk custom cantik di dalam layar aktif aplikasi
             const banner = document.createElement('div');
             banner.className = 'fixed top-4 left-1/2 -translate-x-1/2 w-11/12 max-w-sm bg-white/95 backdrop-blur-md rounded-2xl border border-gray-100 shadow-2xl z-[9999] flex p-3.5 gap-3 transform -translate-y-40 transition-all duration-500 ease-out cursor-pointer pointer-events-auto';
             
@@ -3373,6 +3427,37 @@
 
             window.print();
             window.location.reload();
+        }
+
+        // Menjalankan inisialisasi aplikasi secara otomatis saat halaman web dimuat
+        window.onload = function () {
+            // Memulai sistem kunci keamanan PIN
+            initSecurityLock();
+            
+            // Mengatur tanggal hari ini pada input tanggal absensi secara default
+            const dateInput = document.getElementById('absensi-tanggal');
+            if (dateInput) {
+                dateInput.value = getTodayDateString();
+            }
+
+            // Membuka dan menyinkronkan database Supabase / Local Storage secara aman
+            loadDatabase();
+
+            // Memulai jam waktu nyata (real-time clock)
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            // Mengambil jadwal shalat terupdate dari Pare / Kediri
+            fetchPrayerTimes();
+
+            // Membuka pendengar (listener) keyboard fisik untuk kode PIN keamanan
+            window.addEventListener('keydown', handlePhysicalKeyboard);
+
+            // Memeriksa status izin notifikasi sistem HP
+            checkNotificationPermissionStatus();
+
+            // Memulai sinkronisasi latar belakang yang aman setiap 10 detik
+            setupSafePollingSync();
         }
     </script>
 </body>
